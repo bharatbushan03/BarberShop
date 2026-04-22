@@ -32,7 +32,7 @@
                 android:layout_gravity="center_horizontal"
                 android:padding="4dp"
                 android:typeface="monospace"
-                android:text="Explore BarberShops ..."
+                android:text="Explore BarberShops..."
                 android:textColor="@color/white"
                 android:textSize="19sp" />
         </androidx.appcompat.widget.Toolbar>

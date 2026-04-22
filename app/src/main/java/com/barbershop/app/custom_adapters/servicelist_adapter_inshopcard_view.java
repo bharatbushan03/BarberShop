@@ -10,8 +10,8 @@ package com.barbershop.app.custom_adapters;
         import androidx.annotation.NonNull;
         import androidx.recyclerview.widget.RecyclerView;
 
-        import com.barbershop.app.R;
-        import com.barbershop.app.userdetails.services;
+        import com.yourname.barbershop.R;
+        import com.yourname.barbershop.userdetails.services;
 
         import java.util.ArrayList;
 

@@ -45,9 +45,9 @@ import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
-import com.barbershop.app.custom_adapters.RecyclerItemClickListener;
-import com.barbershop.app.custom_adapters.shop_imgs_adapter;
-import com.barbershop.app.userdetails.Shop;
+import com.yourname.barbershop.custom_adapters.RecyclerItemClickListener;
+import com.yourname.barbershop.custom_adapters.shop_imgs_adapter;
+import com.yourname.barbershop.userdetails.Shop;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.ErrorDialogFragment;
 import com.google.android.gms.common.GoogleApiAvailability;

@@ -4,7 +4,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Barbershop is a dual-role Android application (Java) for barbershop booking and shop management. It supports two user types:
+BarberConnect is a dual-role Android application (Java) for barbershop booking and shop management. It supports two user types:
+
 - **Customers**: Browse shops, book appointments, view reviews
 - **Shop Owners**: Manage services, view appointments, handle reviews
 
@@ -62,7 +63,7 @@ Shops/{uid}           - Shop data (shop_details, services, appointments, reviews
 - `Ownerfragmentservices` - CRUD services
 - `Ownerfragmentreviews` - View reviews
 
-**Data Models:**
+**Data Models** (`userdetails/`):
 - `user` - Customer profile
 - `Shop` - Shop/profile data
 - `services` - Service offerings

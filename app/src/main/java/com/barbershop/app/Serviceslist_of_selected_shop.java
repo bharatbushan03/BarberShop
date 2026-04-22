@@ -17,9 +17,9 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.barbershop.app.custom_adapters.RecyclerItemClickListener;
-import com.barbershop.app.custom_adapters.serviceslist_of_selected_shop_adapter;
-import com.barbershop.app.userdetails.services;
+import com.yourname.barbershop.custom_adapters.RecyclerItemClickListener;
+import com.yourname.barbershop.custom_adapters.serviceslist_of_selected_shop_adapter;
+import com.yourname.barbershop.userdetails.services;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.FirebaseDatabase;

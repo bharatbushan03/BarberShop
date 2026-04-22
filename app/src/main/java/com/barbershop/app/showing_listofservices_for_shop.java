@@ -24,7 +24,7 @@ import android.widget.RatingBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.barbershop.app.custom_adapters.shop_imgs_adapter;
+import com.yourname.barbershop.custom_adapters.shop_imgs_adapter;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.FirebaseDatabase;

@@ -16,8 +16,8 @@ import android.view.ViewGroup;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import com.barbershop.app.custom_adapters.reviews_list_selectedshop_adapter;
-import com.barbershop.app.userdetails.reviewdetail_class;
+import com.yourname.barbershop.custom_adapters.reviews_list_selectedshop_adapter;
+import com.yourname.barbershop.userdetails.reviewdetail_class;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;

@@ -16,9 +16,9 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.barbershop.app.custom_adapters.RecyclerItemClickListener;
-import com.barbershop.app.custom_adapters.appointmentlist_userside_adapter;
-import com.barbershop.app.userdetails.appointment_in_userside;
+import com.yourname.barbershop.custom_adapters.RecyclerItemClickListener;
+import com.yourname.barbershop.custom_adapters.appointmentlist_userside_adapter;
+import com.yourname.barbershop.userdetails.appointment_in_userside;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;

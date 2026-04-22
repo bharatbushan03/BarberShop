@@ -10,8 +10,8 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.barbershop.app.R;
-import com.barbershop.app.userdetails.services;
+import com.yourname.barbershop.R;
+import com.yourname.barbershop.userdetails.services;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;

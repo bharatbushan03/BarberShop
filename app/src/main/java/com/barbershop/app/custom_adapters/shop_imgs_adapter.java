@@ -12,8 +12,8 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.barbershop.app.R;
-import com.barbershop.app.userdetails.Shop;
+import com.yourname.barbershop.R;
+import com.yourname.barbershop.userdetails.Shop;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;

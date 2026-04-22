@@ -24,8 +24,8 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.barbershop.app.userdetails.Shop;
-import com.barbershop.app.userdetails.user;
+import com.yourname.barbershop.userdetails.Shop;
+import com.yourname.barbershop.userdetails.user;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.FirebaseException;
