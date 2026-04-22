@@ -5,7 +5,8 @@
       "Bash(mkdir -p com/barbershop/app/custom_adapters)",
       "Bash(mkdir -p com/barbershop/app/userdetails)",
       "Bash(mkdir -p com/barbershop/app/for_errorhandling)",
-      "Bash(git add *)"
+      "Bash(git add *)",
+      "Bash(git commit *)"
     ]
   }
 }
