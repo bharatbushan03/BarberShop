@@ -19,10 +19,9 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.Toast;
 
-import com.yourname.barbershop.databinding.FragmentAboutfragmentBinding;
+import com.barbershop.app.databinding.FragmentAboutfragmentBinding;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -58,13 +57,13 @@ public class aboutfragment extends Fragment {
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
 
-    ImageView mapimageview;
-
     // TODO: Rename and change types of parameters
     private String mParam1;
     private String mParam2;
     private FragmentAboutfragmentBinding fragmentAboutfragmentBinding;
     String Shop_id;
+
+    private ValueEventListener shopDetailsListener;
 
     public aboutfragment() {
         // Required empty public constructor
@@ -94,19 +93,19 @@ public class aboutfragment extends Fragment {
         if (getArguments() != null) {
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
+            Shop_id = getArguments().getString("Shop_id");
         }
-        Shop_id=getArguments().getString("Shop_id");
         Log.d("AWAWAW","id="+Shop_id);
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
 
        fragmentAboutfragmentBinding=FragmentAboutfragmentBinding.inflate(inflater,container,false);
      //  View view=inflater.inflate(R.layout.fragment_aboutfragment, container, false);;
-        FragmentTransaction fragmentTransaction=getParentFragmentManager().beginTransaction();
+        FragmentTransaction fragmentTransaction=getChildFragmentManager().beginTransaction();
         MapsFragment mf1=new MapsFragment();
         Bundle b=new Bundle();
         Log.d("AWAWAW","id="+Shop_id);
@@ -123,71 +122,81 @@ public class aboutfragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        FirebaseDatabase.getInstance().getReference("Shops").child(Shop_id).child("shop_details").addValueEventListener(new ValueEventListener() {
+        shopDetailsListener = new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                fragmentAboutfragmentBinding.ownerNameAboutFragment.setText(fragmentAboutfragmentBinding.ownerNameAboutFragment.getText().toString().replace("Kay", snapshot.child("owner_name").getValue(String.class)));
+                if (!isAdded() || fragmentAboutfragmentBinding == null) return;
+
+                String ownerName = snapshot.child("owner_name").getValue(String.class);
+                if (ownerName != null) {
+                    fragmentAboutfragmentBinding.ownerNameAboutFragment.setText("Hi there,\nI'm " + ownerName);
+                }
+                
                 fragmentAboutfragmentBinding.aboutOwnerAboutFrag.setText(snapshot.child("about_owner").getValue(String.class));
                 fragmentAboutfragmentBinding.shopNameAboutFrag.setText(snapshot.child("shop_name").getValue(String.class));
                 fragmentAboutfragmentBinding.shopAddressAboutFrag.setText(snapshot.child("shop_address").getValue(String.class));
-                if (snapshot.child("schedule").exists()) {
-                Log.d("RRRR", snapshot.child("schedule").child("sunday").getValue(String.class));
-                fragmentAboutfragmentBinding.sundayTimeAboutFrag.setText(snapshot.child("schedule").child("sunday").getValue(String.class).equals("Open") ? (snapshot.child("schedule").child("opening_time").getValue(String.class) + "-" + snapshot.child("schedule").child("closing_time").getValue(String.class)) : "Closed");
-                fragmentAboutfragmentBinding.mondayTimingAboutFrag.setText(snapshot.child("schedule").child("monday").getValue(String.class).equals("Open") ? (snapshot.child("schedule").child("opening_time").getValue(String.class) + "-" + snapshot.child("schedule").child("closing_time").getValue(String.class)) : "Closed");
-                fragmentAboutfragmentBinding.tuesdayTimingAboutFrag.setText(snapshot.child("schedule").child("tuesday").getValue(String.class).equals("Open") ? (snapshot.child("schedule").child("opening_time").getValue(String.class) + "-" + snapshot.child("schedule").child("closing_time").getValue(String.class)) : "Closed");
-                fragmentAboutfragmentBinding.wednesdayTimingAboutFrag.setText(snapshot.child("schedule").child("wednesday").getValue(String.class).equals("Open") ? (snapshot.child("schedule").child("opening_time").getValue(String.class) + "-" + snapshot.child("schedule").child("closing_time").getValue(String.class)) : "Closed");
-                fragmentAboutfragmentBinding.thursdayTimingAboutFrag.setText(snapshot.child("schedule").child("thursday").getValue(String.class).equals("Open") ? (snapshot.child("schedule").child("opening_time").getValue(String.class) + "-" + snapshot.child("schedule").child("closing_time").getValue(String.class)) : "Closed");
-                fragmentAboutfragmentBinding.fridayTimingAboutFrag.setText(snapshot.child("schedule").child("friday").getValue(String.class).equals("Open") ? (snapshot.child("schedule").child("opening_time").getValue(String.class) + "-" + snapshot.child("schedule").child("closing_time").getValue(String.class)) : "Closed");
-                fragmentAboutfragmentBinding.saturdayTimingAboutFrag.setText(snapshot.child("schedule").child("saturday").getValue(String.class).equals("Open") ? (snapshot.child("schedule").child("opening_time").getValue(String.class) + "-" + snapshot.child("schedule").child("closing_time").getValue(String.class)) : "Closed");
+                
+                DataSnapshot scheduleSnapshot = snapshot.child("schedule");
+                if (scheduleSnapshot.exists()) {
+                    String openingTime = scheduleSnapshot.child("opening_time").getValue(String.class);
+                    String closingTime = scheduleSnapshot.child("closing_time").getValue(String.class);
+                    String timeRange = (openingTime != null && closingTime != null) ? (openingTime + "-" + closingTime) : "";
 
-            }
-                if (snapshot.child("cancellation_Policy").exists()){
-                    fragmentAboutfragmentBinding.cancellationPolicyInfoAboutFrag.setText(snapshot.child("cancellation_Policy").exists() ? (snapshot.child("cancellation_Policy").getValue(String.class)) : "This is my Cancellationnnnn");
+                    fragmentAboutfragmentBinding.sundayTimeAboutFrag.setText("Open".equals(scheduleSnapshot.child("sunday").getValue(String.class)) ? timeRange : "Closed");
+                    fragmentAboutfragmentBinding.mondayTimingAboutFrag.setText("Open".equals(scheduleSnapshot.child("monday").getValue(String.class)) ? timeRange : "Closed");
+                    fragmentAboutfragmentBinding.tuesdayTimingAboutFrag.setText("Open".equals(scheduleSnapshot.child("tuesday").getValue(String.class)) ? timeRange : "Closed");
+                    fragmentAboutfragmentBinding.wednesdayTimingAboutFrag.setText("Open".equals(scheduleSnapshot.child("wednesday").getValue(String.class)) ? timeRange : "Closed");
+                    fragmentAboutfragmentBinding.thursdayTimingAboutFrag.setText("Open".equals(scheduleSnapshot.child("thursday").getValue(String.class)) ? timeRange : "Closed");
+                    fragmentAboutfragmentBinding.fridayTimingAboutFrag.setText("Open".equals(scheduleSnapshot.child("friday").getValue(String.class)) ? timeRange : "Closed");
+                    fragmentAboutfragmentBinding.saturdayTimingAboutFrag.setText("Open".equals(scheduleSnapshot.child("saturday").getValue(String.class)) ? timeRange : "Closed");
                 }
-
-
+                
+                if (snapshot.child("cancellation_Policy").exists()){
+                    fragmentAboutfragmentBinding.cancellationPolicyInfoAboutFrag.setText(snapshot.child("cancellation_Policy").getValue(String.class));
+                }
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
-
+                Log.e("aboutfragment", "Database error: " + error.getMessage());
             }
-        });
+        };
 
-        fragmentAboutfragmentBinding.callAboutFrag.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                String[] permissions={ Manifest.permission.CALL_PHONE};
-                if(ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.CALL_PHONE)!= PackageManager.PERMISSION_GRANTED){
-                    ActivityCompat.requestPermissions(getActivity(),permissions,1234);
+        FirebaseDatabase.getInstance().getReference("Shops").child(Shop_id).child("shop_details").addValueEventListener(shopDetailsListener);
+
+        fragmentAboutfragmentBinding.callAboutFrag.setOnClickListener(v -> {
+            if(ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.CALL_PHONE)!= PackageManager.PERMISSION_GRANTED){
+                ActivityCompat.requestPermissions(requireActivity(), new String[]{Manifest.permission.CALL_PHONE}, 1234);
+                return;
+            }
+
+            FirebaseDatabase.getInstance().getReference("Shops").child(Shop_id).child("shop_details").child("shop_mobile_no").addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot snapshot) {
+                    String phone = snapshot.getValue(String.class);
+                    if (phone != null && !phone.isEmpty()) {
+                        Intent intent = new Intent(Intent.ACTION_CALL);
+                        intent.setData(Uri.parse("tel:" + phone));
+                        startActivity(intent);
+                    } else {
+                        Toast.makeText(getContext(), "Phone number not available", Toast.LENGTH_SHORT).show();
+                    }
                 }
 
-                FirebaseDatabase.getInstance().getReference("Shops").child(Shop_id).child("shop_details").child("shop_mobile_no").addValueEventListener(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(@NonNull DataSnapshot snapshot) {
-                        Intent intent = new Intent(Intent.ACTION_CALL);
-                        intent.setData(Uri.parse("tel:" + snapshot.getValue(String.class)));
-                        startActivity(intent);
-                    }
-
-                    @Override
-                    public void onCancelled(@NonNull DatabaseError error) {
-
-                    }
-                });
-            }
+                @Override
+                public void onCancelled(@NonNull DatabaseError error) {}
+            });
         });
 
-        fragmentAboutfragmentBinding.mailAboutFrag.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                FirebaseDatabase.getInstance().getReference("Shops").child(Shop_id).child("shop_details").child("shop_mail").addValueEventListener(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(@NonNull DataSnapshot snapshot) {
-
+        fragmentAboutfragmentBinding.mailAboutFrag.setOnClickListener(v -> {
+            FirebaseDatabase.getInstance().getReference("Shops").child(Shop_id).child("shop_details").child("shop_mail").addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot snapshot) {
+                    String email = snapshot.getValue(String.class);
+                    if (email != null && !email.isEmpty()) {
                         Intent i = new Intent(Intent.ACTION_SEND);
                         i.setType("message/rfc822");
-                        i.putExtra(Intent.EXTRA_EMAIL  , new String[]{snapshot.getValue(String.class)});
+                        i.putExtra(Intent.EXTRA_EMAIL  , new String[]{email});
                         i.putExtra(Intent.EXTRA_SUBJECT, "Query regarding shop");
                         i.putExtra(Intent.EXTRA_TEXT   , "Welcome Sir!");
                         try {
@@ -195,15 +204,24 @@ public class aboutfragment extends Fragment {
                         } catch (android.content.ActivityNotFoundException ex) {
                             Toast.makeText(getContext(), "There are no email clients installed.", Toast.LENGTH_SHORT).show();
                         }
+                    } else {
+                        Toast.makeText(getContext(), "Email not available", Toast.LENGTH_SHORT).show();
                     }
+                }
 
-                    @Override
-                    public void onCancelled(@NonNull DatabaseError error) {
-
-                    }
-                });
-            }
+                @Override
+                public void onCancelled(@NonNull DatabaseError error) {}
+            });
         });
 
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        if (Shop_id != null && shopDetailsListener != null) {
+            FirebaseDatabase.getInstance().getReference("Shops").child(Shop_id).child("shop_details").removeEventListener(shopDetailsListener);
+        }
+        fragmentAboutfragmentBinding = null;
     }
 }
