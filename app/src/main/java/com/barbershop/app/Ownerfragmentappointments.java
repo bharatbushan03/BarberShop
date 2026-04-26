@@ -12,9 +12,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.yourname.barbershop.custom_adapters.appointmentlist_ownerside_adapter;
-import com.yourname.barbershop.custom_adapters.appointmentlist_userside_adapter;
-import com.yourname.barbershop.userdetails.appointment_in_userside;
+import com.barbershop.app.custom_adapters.appointmentlist_ownerside_adapter;
+import com.barbershop.app.custom_adapters.appointmentlist_userside_adapter;
+import com.barbershop.app.userdetails.appointment_in_userside;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;

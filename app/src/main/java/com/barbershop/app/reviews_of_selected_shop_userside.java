@@ -31,8 +31,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 
-import com.yourname.barbershop.custom_adapters.reviews_list_selectedshop_adapter;
-import com.yourname.barbershop.userdetails.reviewdetail_class;
+import com.barbershop.app.custom_adapters.reviews_list_selectedshop_adapter;
+import com.barbershop.app.userdetails.reviewdetail_class;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.auth.FirebaseAuth;

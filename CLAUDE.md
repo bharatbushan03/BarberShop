@@ -86,3 +86,29 @@ Shops/{uid}           - Shop data (shop_details, services, appointments, reviews
 - Location permissions requested at runtime in `custHomeActivity`
 - ProgressDialog used extensively for loading states
 - Firebase Realtime Database listeners use `addValueEventListener` for real-time updates
+
+## Key Patterns
+
+**Navigation Pattern:**
+- Single-Activity architecture per role (customer/owner) with Fragment-based navigation
+- BottomNavigationView drives fragment swaps in both `custHomeActivity` and `OwnerHomeActivity`
+- Entry point is `firstscreen` which routes to appropriate login or home activity
+
+**Data Flow:**
+- Firebase Realtime Database is primary data source
+- SQLite (`dbhelper`, `dbhelperforowner`) caches login credentials locally
+- Model classes in `userdetails/` are plain Java objects with getters/setters
+
+**UI Conventions:**
+- All activities hide ActionBar via `Objects.requireNonNull(getSupportActionBar()).hide()`
+- Layout IDs follow pattern: `activity_*.xml` for activities, `fragment_*.xml` for fragments
+- Custom adapters live in `custom_adapters/` package with ViewHolder pattern
+
+## Commands
+
+```bash
+./gradlew assembleDebug      # Build debug APK
+./gradlew assembleRelease    # Build release APK
+./gradlew clean              # Clean build
+./gradlew installDebug       # Install on connected device (requires device/emulator)
+```

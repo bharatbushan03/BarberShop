@@ -164,54 +164,60 @@ public class aboutfragment extends Fragment {
 
         FirebaseDatabase.getInstance().getReference("Shops").child(Shop_id).child("shop_details").addValueEventListener(shopDetailsListener);
 
-        fragmentAboutfragmentBinding.callAboutFrag.setOnClickListener(v -> {
-            if(ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.CALL_PHONE)!= PackageManager.PERMISSION_GRANTED){
-                ActivityCompat.requestPermissions(requireActivity(), new String[]{Manifest.permission.CALL_PHONE}, 1234);
-                return;
-            }
-
-            FirebaseDatabase.getInstance().getReference("Shops").child(Shop_id).child("shop_details").child("shop_mobile_no").addListenerForSingleValueEvent(new ValueEventListener() {
-                @Override
-                public void onDataChange(@NonNull DataSnapshot snapshot) {
-                    String phone = snapshot.getValue(String.class);
-                    if (phone != null && !phone.isEmpty()) {
-                        Intent intent = new Intent(Intent.ACTION_CALL);
-                        intent.setData(Uri.parse("tel:" + phone));
-                        startActivity(intent);
-                    } else {
-                        Toast.makeText(getContext(), "Phone number not available", Toast.LENGTH_SHORT).show();
-                    }
+        fragmentAboutfragmentBinding.callAboutFrag.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.CALL_PHONE)!= PackageManager.PERMISSION_GRANTED){
+                    ActivityCompat.requestPermissions(requireActivity(), new String[]{Manifest.permission.CALL_PHONE}, 1234);
+                    return;
                 }
 
-                @Override
-                public void onCancelled(@NonNull DatabaseError error) {}
-            });
+                FirebaseDatabase.getInstance().getReference("Shops").child(Shop_id).child("shop_details").child("shop_mobile_no").addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                        String phone = snapshot.getValue(String.class);
+                        if (phone != null && !phone.isEmpty()) {
+                            Intent intent = new Intent(Intent.ACTION_CALL);
+                            intent.setData(Uri.parse("tel:" + phone));
+                            startActivity(intent);
+                        } else {
+                            Toast.makeText(getContext(), "Phone number not available", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {}
+                });
+            }
         });
 
-        fragmentAboutfragmentBinding.mailAboutFrag.setOnClickListener(v -> {
-            FirebaseDatabase.getInstance().getReference("Shops").child(Shop_id).child("shop_details").child("shop_mail").addListenerForSingleValueEvent(new ValueEventListener() {
-                @Override
-                public void onDataChange(@NonNull DataSnapshot snapshot) {
-                    String email = snapshot.getValue(String.class);
-                    if (email != null && !email.isEmpty()) {
-                        Intent i = new Intent(Intent.ACTION_SEND);
-                        i.setType("message/rfc822");
-                        i.putExtra(Intent.EXTRA_EMAIL  , new String[]{email});
-                        i.putExtra(Intent.EXTRA_SUBJECT, "Query regarding shop");
-                        i.putExtra(Intent.EXTRA_TEXT   , "Welcome Sir!");
-                        try {
-                            startActivity(Intent.createChooser(i, "Send mail..."));
-                        } catch (android.content.ActivityNotFoundException ex) {
-                            Toast.makeText(getContext(), "There are no email clients installed.", Toast.LENGTH_SHORT).show();
+        fragmentAboutfragmentBinding.mailAboutFrag.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                FirebaseDatabase.getInstance().getReference("Shops").child(Shop_id).child("shop_details").child("shop_mail").addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                        String email = snapshot.getValue(String.class);
+                        if (email != null && !email.isEmpty()) {
+                            Intent i = new Intent(Intent.ACTION_SEND);
+                            i.setType("message/rfc822");
+                            i.putExtra(Intent.EXTRA_EMAIL, new String[]{email});
+                            i.putExtra(Intent.EXTRA_SUBJECT, "Query regarding shop");
+                            i.putExtra(Intent.EXTRA_TEXT, "Welcome Sir!");
+                            try {
+                                startActivity(Intent.createChooser(i, "Send mail..."));
+                            } catch (android.content.ActivityNotFoundException ex) {
+                                Toast.makeText(getContext(), "There are no email clients installed.", Toast.LENGTH_SHORT).show();
+                            }
+                        } else {
+                            Toast.makeText(getContext(), "Email not available", Toast.LENGTH_SHORT).show();
                         }
-                    } else {
-                        Toast.makeText(getContext(), "Email not available", Toast.LENGTH_SHORT).show();
                     }
-                }
 
-                @Override
-                public void onCancelled(@NonNull DatabaseError error) {}
-            });
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {}
+                });
+            }
         });
 
     }

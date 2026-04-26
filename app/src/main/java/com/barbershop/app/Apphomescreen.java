@@ -22,9 +22,9 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageButton;
 
-import com.yourname.barbershop.custom_adapters.RecyclerItemClickListener;
-import com.yourname.barbershop.custom_adapters.shop_list_adapter;
-import com.yourname.barbershop.userdetails.Shop;
+import com.barbershop.app.custom_adapters.RecyclerItemClickListener;
+import com.barbershop.app.custom_adapters.shop_list_adapter;
+import com.barbershop.app.userdetails.Shop;
 import com.google.android.gms.location.LocationServices;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;

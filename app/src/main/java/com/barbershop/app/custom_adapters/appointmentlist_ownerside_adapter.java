@@ -14,9 +14,9 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.yourname.barbershop.R;
-import com.yourname.barbershop.userdetails.appointment_in_userside;
-import com.yourname.barbershop.userdetails.services;
+import com.barbershop.app.R;
+import com.barbershop.app.userdetails.appointment_in_userside;
+import com.barbershop.app.userdetails.services;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;

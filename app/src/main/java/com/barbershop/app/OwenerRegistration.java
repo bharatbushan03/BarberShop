@@ -24,19 +24,21 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.yourname.barbershop.userdetails.Shop;
-import com.yourname.barbershop.userdetails.user;
+import com.barbershop.app.userdetails.Shop;
+import com.barbershop.app.userdetails.user;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.FirebaseException;
 import com.google.firebase.auth.AuthResult;
+import com.google.firebase.auth.EmailAuthProvider;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseAuthException;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.PhoneAuthCredential;
 import com.google.firebase.auth.PhoneAuthOptions;
 import com.google.firebase.auth.PhoneAuthProvider;
 import com.google.firebase.database.FirebaseDatabase;
 
-import java.security.acl.Owner;
 import java.util.Calendar;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
@@ -175,66 +177,138 @@ public class OwenerRegistration extends AppCompatActivity {
     }
 
     private void signInWithCredential(PhoneAuthCredential credential) {
+        Toast.makeText(OwenerRegistration.this,"Verifying OTP...",Toast.LENGTH_SHORT).show();
 
-        Toast.makeText(OwenerRegistration.this,"Ready To Go",Toast.LENGTH_SHORT).show();
-        // inside this method we are checking if
-        // the code entered is correct or not.
         mAuth.signInWithCredential(credential)
                 .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
-
                         if (task.isSuccessful()) {
+                            FirebaseUser firebaseUser = mAuth.getCurrentUser();
+                            if (firebaseUser == null) {
+                                showRegistrationError("Unable to complete registration. Please try again.");
+                                return;
+                            }
 
-                            mAuth.createUserWithEmailAndPassword(shopmail.getText().toString(), password.getText().toString()).
-                                    addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+                            firebaseUser.linkWithCredential(
+                                            EmailAuthProvider.getCredential(
+                                                    shopmail.getText().toString().trim(),
+                                                    password.getText().toString()))
+                                    .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
                                         @Override
-                                        public void onComplete(@NonNull Task<AuthResult> task) {
-
-                                            if (task.isSuccessful()) {
-                                                Loading.setVisibility(View.GONE);
-                                                check.setVisibility(View.VISIBLE);
-
-                                                authwithmail_uid= Objects.requireNonNull(mAuth.getCurrentUser()).getUid();
-                                                //String shop_profile_pic, String shop_name, String owner_name, String shop_mail, String shop_password, String shop_mobile_no, String shop_address
-                                                Shop shop=new Shop("default",shopname.getText().toString(),ownername.getText().toString(),shopmail.getText().toString(),password.getText().toString(),shopnumber.getText().toString(),shopaddress.getText().toString());
-
-                                                Log.d("piooo mauthinshubhm",mAuth.getCurrentUser().getUid());
-                                                database.getReference().child("Shops").child(mAuth.getCurrentUser().getUid()).child("shop_details").setValue(shop);
-                                                database.getReference("Shops").child(mAuth.getCurrentUser().getUid()).child("shop_details").child("joining_year").setValue(Calendar.getInstance().get(Calendar.YEAR)+"");
-                                                Handler handler = new Handler();
-                                                handler.postDelayed(new Runnable() {
-                                                    public void run() {
-                                                        Intent i = new Intent(OwenerRegistration.this, OwnerHomeActivity.class);
-                                                        Log.d("piooo reg uidd mailauth",authwithmail_uid);
-                                                        //i.putExtra("userid",authwithmail_uid);
-
-                                                        startActivity(i);
-                                                        finish();
-
-
-                                                    }
-                                                }, 2000);
-
+                                        public void onComplete(@NonNull Task<AuthResult> linkTask) {
+                                            if (linkTask.isSuccessful()
+                                                    || isLinkedToSameEmail(firebaseUser, shopmail.getText().toString().trim(), linkTask.getException())) {
+                                                saveOwnerProfile(firebaseUser.getUid());
                                             } else {
-                                                Toast.makeText(OwenerRegistration.this, task.getException().getMessage(), Toast.LENGTH_SHORT).show();
-
+                                                mAuth.signOut();
+                                                showRegistrationError(getLinkErrorMessage(linkTask.getException()));
                                             }
                                         }
                                     });
-
                         } else {
-                            // if the code is not correct then we are
-                            // displaying an error message to the user.
                             Log.d("piooo","failll");
                             registerbtn.setEnabled(true);
                             Loading.setVisibility(View.GONE);
                             incorrect_otp.setVisibility(View.VISIBLE);
-                            Toast.makeText(OwenerRegistration.this, "Invalid OTP!!! Retry", Toast.LENGTH_LONG).show();
-                            // Toast.makeText(Registration.this, task.getException().getMessage(), Toast.LENGTH_LONG).show();
+                            progressDialog.dismiss();
+
+                            String errorMsg = "Invalid OTP!!! Retry";
+                            if (task.getException() != null) {
+                                errorMsg = errorMsg + " - " + task.getException().getMessage();
+                                Log.e("RegistrationError", "Error verifying OTP: ", task.getException());
+                            }
+                            Toast.makeText(OwenerRegistration.this, errorMsg, Toast.LENGTH_LONG).show();
                         }
                     }
                 });
+    }
+
+    private void saveOwnerProfile(String uid) {
+        Loading.setVisibility(View.GONE);
+        check.setVisibility(View.VISIBLE);
+
+        Shop shop = new Shop("default", shopname.getText().toString(), ownername.getText().toString(),
+                shopmail.getText().toString().trim(), password.getText().toString(),
+                shopnumber.getText().toString(), shopaddress.getText().toString());
+
+        database.getReference().child("Shops").child(uid).child("shop_details").setValue(shop)
+                .addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        progressDialog.dismiss();
+                        if (task.isSuccessful()) {
+                            database.getReference("Shops").child(uid).child("shop_details")
+                                    .child("joining_year").setValue(Calendar.getInstance().get(Calendar.YEAR) + "");
+                            Toast.makeText(OwenerRegistration.this, "Account created successfully!", Toast.LENGTH_SHORT).show();
+                            Intent i = new Intent(OwenerRegistration.this, OwnerHomeActivity.class);
+                            startActivity(i);
+                            finish();
+                        } else {
+                            registerbtn.setEnabled(true);
+                            String errorMsg = task.getException() != null ? task.getException().getMessage() : "Failed to save shop data";
+                            Log.e("RegistrationError", "Error saving shop: ", task.getException());
+                            Toast.makeText(OwenerRegistration.this, errorMsg, Toast.LENGTH_LONG).show();
+                        }
+                    }
+                });
+    }
+
+    private void createOwnerAccountWithoutPhoneVerification() {
+        String email = shopmail.getText().toString().trim();
+        String userPassword = password.getText().toString();
+
+        mAuth.createUserWithEmailAndPassword(email, userPassword)
+                .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+                    @Override
+                    public void onComplete(@NonNull Task<AuthResult> task) {
+                        if (task.isSuccessful() && mAuth.getCurrentUser() != null) {
+                            Toast.makeText(OwenerRegistration.this, "Phone verification unavailable. Account created with email login.", Toast.LENGTH_LONG).show();
+                            saveOwnerProfile(mAuth.getCurrentUser().getUid());
+                        } else {
+                            registerbtn.setEnabled(true);
+                            Loading.setVisibility(View.GONE);
+                            progressDialog.dismiss();
+                            String errorMsg = task.getException() != null ? task.getException().getMessage() : "Unable to create shop account.";
+                            Toast.makeText(OwenerRegistration.this, errorMsg, Toast.LENGTH_LONG).show();
+                        }
+                    }
+                });
+    }
+
+    private void showRegistrationError(String errorMessage) {
+        registerbtn.setEnabled(true);
+        Loading.setVisibility(View.GONE);
+        incorrect_otp.setVisibility(View.GONE);
+        check.setVisibility(View.GONE);
+        progressDialog.dismiss();
+        Toast.makeText(OwenerRegistration.this, errorMessage, Toast.LENGTH_LONG).show();
+    }
+
+    private boolean isProviderAlreadyLinked(Exception exception) {
+        return exception instanceof FirebaseAuthException
+                && "ERROR_PROVIDER_ALREADY_LINKED".equals(((FirebaseAuthException) exception).getErrorCode());
+    }
+
+    private boolean isLinkedToSameEmail(FirebaseUser firebaseUser, String email, Exception exception) {
+        return isProviderAlreadyLinked(exception)
+                && firebaseUser.getEmail() != null
+                && firebaseUser.getEmail().equalsIgnoreCase(email);
+    }
+
+    private String getLinkErrorMessage(Exception exception) {
+        if (exception instanceof FirebaseAuthException) {
+            String errorCode = ((FirebaseAuthException) exception).getErrorCode();
+            if ("ERROR_EMAIL_ALREADY_IN_USE".equals(errorCode) || "ERROR_CREDENTIAL_ALREADY_IN_USE".equals(errorCode)) {
+                return "This email is already registered. Please log in instead.";
+            }
+            if ("ERROR_PROVIDER_ALREADY_LINKED".equals(errorCode)) {
+                return "This phone number is already linked to another account. Please log in instead.";
+            }
+        }
+        return exception != null && exception.getMessage() != null
+                ? exception.getMessage()
+                : "Unable to create an email login for this account.";
     }
 
     private void sendVerificationCode(String number) {
@@ -264,6 +338,14 @@ public class OwenerRegistration extends AppCompatActivity {
             codesent = phoneAuthCredential.getSmsCode();
             Log.d("piooo  firebasecodesent", codesent);
 
+            if (codesent != null && codesent.length() == 6) {
+                setOtpFields(codesent);
+            }
+            if (alertDialog != null && alertDialog.isShowing()) {
+                alertDialog.dismiss();
+            }
+            signInWithCredential(phoneAuthCredential);
+
 
         }
 
@@ -271,6 +353,15 @@ public class OwenerRegistration extends AppCompatActivity {
         public void onVerificationFailed(FirebaseException e) {
             // displaying error message with firebase exception.
             Log.d("piooo  fail", "");
+            progressDialog.dismiss();
+            Loading.setVisibility(View.GONE);
+            if (e.getMessage() != null && e.getMessage().toLowerCase().contains("provider is disabled")) {
+                progressDialog.setMessage("Phone verification unavailable. Creating account...");
+                progressDialog.show();
+                Loading.setVisibility(View.VISIBLE);
+                createOwnerAccountWithoutPhoneVerification();
+                return;
+            }
             Toast.makeText(OwenerRegistration.this, e.getMessage(), Toast.LENGTH_SHORT).show();
             Toast.makeText(OwenerRegistration.this, "Try Again", Toast.LENGTH_SHORT).show();
             registerbtn.setEnabled(true);
@@ -376,10 +467,24 @@ public class OwenerRegistration extends AppCompatActivity {
         Log.d("piooo  verify code fun", "");
         Log.d("piooo comparison", "code="+code+"codesent="+codesent);
 
+        if (verificationId == null || verificationId.trim().isEmpty()) {
+            showRegistrationError("OTP session expired. Please request OTP again.");
+            return;
+        }
+
         PhoneAuthCredential credential = PhoneAuthProvider.getCredential(verificationId, code);
         codesent=credential.getSmsCode();
         signInWithCredential(credential);
 
+    }
+
+    private void setOtpFields(String code) {
+        otp1.setText(String.valueOf(code.charAt(0)));
+        otp2.setText(String.valueOf(code.charAt(1)));
+        otp3.setText(String.valueOf(code.charAt(2)));
+        otp4.setText(String.valueOf(code.charAt(3)));
+        otp5.setText(String.valueOf(code.charAt(4)));
+        otp6.setText(String.valueOf(code.charAt(5)));
     }
 }
 

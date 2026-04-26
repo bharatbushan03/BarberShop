@@ -30,7 +30,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.Toolbar;
 
-import com.yourname.barbershop.userdetails.user;
+import com.barbershop.app.userdetails.user;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
@@ -243,7 +243,9 @@ public class Profilescreen extends Fragment {
 
 
 
-        launcher = registerForActivityResult(new ActivityResultContracts.GetContent(), result -> {
+        launcher = registerForActivityResult(new ActivityResultContracts.GetContent(), new androidx.activity.result.ActivityResultCallback<Uri>() {
+            @Override
+            public void onActivityResult(Uri result) {
             profileimg.setImageURI(result);
 
 
@@ -270,8 +272,8 @@ public class Profilescreen extends Fragment {
                         });
                     }
                 });
-
-            });
+            }
+        });
 
           //  Log.d("piooo userid inprofile", getArguments().getString("userid"));
 //            Log.d("piooo mauthuse profile", mAuth.getCurrentUser().getUid());

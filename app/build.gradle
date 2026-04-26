@@ -1,10 +1,12 @@
 plugins {
     id 'com.android.application'
     id 'com.google.android.libraries.mapsplatform.secrets-gradle-plugin'
+    id 'com.google.gms.google-services'
 }
 
 android {
     compileSdk 32
+    namespace 'com.barbershop.app'
 
     defaultConfig {
         applicationId "com.barbershop.app"
@@ -23,18 +25,14 @@ android {
         }
     }
 
-//    buildFeatures{
-//        viewBinding true
-//    }
-
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
+        coreLibraryDesugaringEnabled true
     }
     buildFeatures {
         viewBinding true
     }
-
 }
 
 dependencies {
@@ -60,7 +58,7 @@ dependencies {
     implementation 'de.hdodenhof:circleimageview:3.1.0'
     implementation 'androidx.browser:browser:1.4.0'
     implementation "androidx.cardview:cardview:1.0.0"
+    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.0.4'
 }
 
-apply plugin: 'com.google.gms.google-services'
 

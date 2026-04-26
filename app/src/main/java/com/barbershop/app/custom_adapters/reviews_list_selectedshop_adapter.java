@@ -11,18 +11,18 @@ package com.barbershop.app.custom_adapters;
         import android.widget.RatingBar;
         import android.widget.TextView;
 
-        import com.yourname.barbershop.Apphomescreen;
-        import com.yourname.barbershop.custHomeActivity;
-        import com.yourname.barbershop.custom_adapters.shop_list_adapter;
+        import com.barbershop.app.Apphomescreen;
+        import com.barbershop.app.custHomeActivity;
+        import com.barbershop.app.custom_adapters.shop_list_adapter;
 
         import androidx.annotation.NonNull;
         import androidx.recyclerview.widget.LinearLayoutManager;
         import androidx.recyclerview.widget.RecyclerView;
 
-        import com.yourname.barbershop.R;
-        import com.yourname.barbershop.userdetails.Shop;
- import com.yourname.barbershop.userdetails.reviewdetail_class;
- import com.yourname.barbershop.userdetails.services;
+        import com.barbershop.app.R;
+        import com.barbershop.app.userdetails.Shop;
+ import com.barbershop.app.userdetails.reviewdetail_class;
+ import com.barbershop.app.userdetails.services;
         import com.google.firebase.auth.FirebaseAuth;
         import com.google.firebase.database.DataSnapshot;
         import com.google.firebase.database.DatabaseError;

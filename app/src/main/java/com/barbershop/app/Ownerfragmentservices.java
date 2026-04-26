@@ -26,10 +26,10 @@ import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
-import com.yourname.barbershop.custom_adapters.RecyclerItemClickListener;
-import com.yourname.barbershop.custom_adapters.services_c_adapter;
-import com.yourname.barbershop.userdetails.Shop;
-import com.yourname.barbershop.userdetails.services;
+import com.barbershop.app.custom_adapters.RecyclerItemClickListener;
+import com.barbershop.app.custom_adapters.services_c_adapter;
+import com.barbershop.app.userdetails.Shop;
+import com.barbershop.app.userdetails.services;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;

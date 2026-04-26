@@ -44,9 +44,14 @@ public class firstscreen extends AppCompatActivity {
 
                 if(mAuth.getCurrentUser()!=null){
 
+                    final android.app.ProgressDialog progressDialog = new android.app.ProgressDialog(firstscreen.this);
+                    progressDialog.setMessage("Logging in...");
+                    progressDialog.setCancelable(false);
+                    progressDialog.show();
                     database.getReference().child("Users").child(mAuth.getCurrentUser().getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
                         @Override
                         public void onDataChange(DataSnapshot snapshot) {
+                            progressDialog.dismiss();
                             if (snapshot.exists()) {
                                 Toast.makeText(firstscreen.this,"Log-in Successfully",Toast.LENGTH_SHORT).show();
                                 //  Log.d("piooo uidinlogin",mAuth.getCurrentUser().getUid());
@@ -65,7 +70,7 @@ public class firstscreen extends AppCompatActivity {
 
                         @Override
                         public void onCancelled(@NonNull DatabaseError error) {
-
+                            progressDialog.dismiss();
                         }
 
                     });
@@ -86,9 +91,14 @@ public class firstscreen extends AppCompatActivity {
                 if(mAuth.getCurrentUser()!=null){
 
 
+                    final android.app.ProgressDialog progressDialog = new android.app.ProgressDialog(firstscreen.this);
+                    progressDialog.setMessage("Logging in...");
+                    progressDialog.setCancelable(false);
+                    progressDialog.show();
                     database.getReference().child("Shops").child(mAuth.getCurrentUser().getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
                         @Override
                         public void onDataChange(DataSnapshot snapshot) {
+                            progressDialog.dismiss();
                             if (snapshot.exists()) {
                                // progressDialog.dismiss();
                                 Toast.makeText(firstscreen.this,"Log-in Successfully",Toast.LENGTH_SHORT).show();
@@ -106,7 +116,7 @@ public class firstscreen extends AppCompatActivity {
 
                         @Override
                         public void onCancelled(@NonNull DatabaseError error) {
-
+                            progressDialog.dismiss();
                         }
 
                     });

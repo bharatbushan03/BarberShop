@@ -23,7 +23,9 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.yourname.barbershop.databinding.ActivityMapsBinding;
+import com.barbershop.app.databinding.ActivityMapsBinding;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
@@ -86,84 +88,68 @@ import java.util.Objects;
 
             try {
                 Task<Location> location = fusedLocationProviderClient.getLastLocation();
-                location.addOnCompleteListener(task -> {
-                    if (task.isSuccessful()) {
-                        try {
-                             current_Location = (Location) task.getResult();
-                            LocationManager locationManager = (LocationManager)  this.getSystemService(Context.LOCATION_SERVICE);
-                            Criteria criteria = new Criteria();
-                           String bestProvider = String.valueOf(locationManager.getBestProvider(criteria, true)).toString();
+                location.addOnCompleteListener(new OnCompleteListener<Location>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Location> task) {
+                        Location locationResult = task.getResult();
+                        if (locationResult != null) {
+                            try {
+                                current_Location = locationResult;
+                                LocationManager locationManager = (LocationManager) MapsActivity.this.getSystemService(Context.LOCATION_SERVICE);
+                                Criteria criteria = new Criteria();
+                                String bestProvider = String.valueOf(locationManager.getBestProvider(criteria, true)).toString();
 
-                            //You can still do this if you like, you might get lucky:
-//                            current_Location = locationManager.getLastKnownLocation(bestProvider);
-//                            if (current_Location != null) {
-//
-//                              }
-//                            else{
-//                                //This is what you need:
-//                                locationManager.requestLocationUpdates(bestProvider, 1000, 0, new LocationListener() {
-//                                    @Override
-//                                    public void onLocationChanged(@NonNull Location location) {
-//                                        locationManager.removeUpdates(this);
-//                                    }
-//                                });
-//                            }
+                                Log.d("MAPPP", "le==" + current_Location.getLatitude() + "");
+                                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(current_Location.getLatitude(), current_Location.getLongitude()), 15f));
+                                mMap.setMyLocationEnabled(true);
+                                if (whoisthere.equals("Owner")) {
+                                    FirebaseDatabase.getInstance().getReference("Shops").child(FirebaseAuth.getInstance().getCurrentUser().getUid()).child("shop_details").child("shop_name").addValueEventListener(new ValueEventListener() {
+                                        @Override
+                                        public void onDataChange(@NonNull DataSnapshot snapshot) {
+                                            name = snapshot.getValue(String.class);
+                                            Log.d("MMM", "name" + name + "lat" + current_Location.getLatitude() + "log" + current_Location.getLongitude());
+                                            mMap.addMarker(new MarkerOptions().position(new LatLng(current_Location.getLatitude(), current_Location.getLongitude())).title(name));
 
-                            Log.d("MAPPP","le=="+current_Location.getLatitude()+"");
-                            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(current_Location.getLatitude(), current_Location.getLongitude()), 15f));
-                            mMap.setMyLocationEnabled(true);
-                            if(whoisthere.equals("Owner")) {
-                            FirebaseDatabase.getInstance().getReference("Shops").child(FirebaseAuth.getInstance().getCurrentUser().getUid()).child("shop_details").child("shop_name").addValueEventListener(new ValueEventListener() {
-                                @Override
-                                public void onDataChange(@NonNull DataSnapshot snapshot) {
-                                    name = snapshot.getValue(String.class);
-                                    Log.d("MMM", "name" + name + "lat" + current_Location.getLatitude() + "log" + current_Location.getLongitude());
-                                    mMap.addMarker(new MarkerOptions().position(new LatLng(current_Location.getLatitude(), current_Location.getLongitude())).title(name));
-
-                                }
-
-                                @Override
-                                public void onCancelled(@NonNull DatabaseError error) {
-
-                                }
-                            });
-
-                            FirebaseDatabase.getInstance().getReference("Shops").child(FirebaseAuth.getInstance().getCurrentUser().getUid()).child("shop_details").child("location").child("longitude").setValue(current_Location.getLongitude() + "");
-                            FirebaseDatabase.getInstance().getReference("Shops").child(FirebaseAuth.getInstance().getCurrentUser().getUid()).child("shop_details").child("location").child("latitude").setValue(current_Location.getLatitude() + "");
-                            Toast.makeText(MapsActivity.this, "Your Current Location is saved As Shop Location", Toast.LENGTH_LONG).show();
-
-                        }else {
-                                FirebaseDatabase.getInstance().getReference("Shops").addValueEventListener(new ValueEventListener() {
-                                    @Override
-                                    public void onDataChange(@NonNull DataSnapshot snapshot) {
-                                        for (DataSnapshot datasnap:snapshot.getChildren()
-                                        ) {
-                                            Double latitude=Double.parseDouble(Objects.requireNonNull(datasnap.child("shop_details").child("location").child("latitude").getValue(String.class)));
-                                            Double longitude=Double.parseDouble(Objects.requireNonNull(datasnap.child("shop_details").child("location").child("longitude").getValue(String.class)));
-                                            mMap.addMarker(new MarkerOptions().position(new LatLng(latitude, longitude)).title(datasnap.child("shop_details").child("shop_name").getValue(String.class)));
                                         }
 
+                                        @Override
+                                        public void onCancelled(@NonNull DatabaseError error) {
 
-                                    }
+                                        }
+                                    });
 
-                                    @Override
-                                    public void onCancelled(@NonNull DatabaseError error) {
+                                    FirebaseDatabase.getInstance().getReference("Shops").child(FirebaseAuth.getInstance().getCurrentUser().getUid()).child("shop_details").child("location").child("longitude").setValue(current_Location.getLongitude() + "");
+                                    FirebaseDatabase.getInstance().getReference("Shops").child(FirebaseAuth.getInstance().getCurrentUser().getUid()).child("shop_details").child("location").child("latitude").setValue(current_Location.getLatitude() + "");
+                                    Toast.makeText(MapsActivity.this, "Your Current Location is saved As Shop Location", Toast.LENGTH_LONG).show();
 
-                                    }
-                                });
+                                } else {
+                                    FirebaseDatabase.getInstance().getReference("Shops").addValueEventListener(new ValueEventListener() {
+                                        @Override
+                                        public void onDataChange(@NonNull DataSnapshot snapshot) {
+                                            for (DataSnapshot datasnap : snapshot.getChildren()) {
+                                                Double latitude = Double.parseDouble(Objects.requireNonNull(datasnap.child("shop_details").child("location").child("latitude").getValue(String.class)));
+                                                Double longitude = Double.parseDouble(Objects.requireNonNull(datasnap.child("shop_details").child("location").child("longitude").getValue(String.class)));
+                                                mMap.addMarker(new MarkerOptions().position(new LatLng(latitude, longitude)).title(datasnap.child("shop_details").child("shop_name").getValue(String.class)));
+                                            }
+                                        }
+
+                                        @Override
+                                        public void onCancelled(@NonNull DatabaseError error) {
+
+                                        }
+                                    });
+                                }
+                            } catch (Throwable throwable) {
+                                Log.d("MAPPP", "getdevice loca exception " + throwable.getMessage());
+                                throwable.printStackTrace();
                             }
-                        } catch (Throwable throwable) {
-                            Log.d("MAPPP", "getdevice loca exception " + throwable.getMessage());
-                            throwable.printStackTrace();
+                        } else {
+                            Toast.makeText(MapsActivity.this, "unable to get current location", Toast.LENGTH_SHORT).show();
                         }
-                    } else {
-                        Toast.makeText(MapsActivity.this, "unable to get current location", Toast.LENGTH_SHORT).show();
                     }
                 });
             } catch (SecurityException e) {
                 Log.d("MAPPP", "getdevice location security exception " + e.getMessage());
             }
-
         }
-
     }

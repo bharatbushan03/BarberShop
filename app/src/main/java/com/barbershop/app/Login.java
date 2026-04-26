@@ -21,7 +21,7 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.yourname.barbershop.userdetails.user;
+import com.barbershop.app.userdetails.user;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
@@ -115,8 +115,7 @@ public class Login extends AppCompatActivity {
                 .build();
 
         mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
-
-
+        
         textView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -139,7 +138,10 @@ public class Login extends AppCompatActivity {
         loginbtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(user_email.getText().toString().equals("") || user_password.getText().toString().equals("")) {
+                final String email = user_email.getText().toString().trim();
+                final String password = user_password.getText().toString();
+
+                if(email.equals("") || password.equals("")) {
                     Toast.makeText(Login.this,"enterrrr all fields",Toast.LENGTH_SHORT).show();
 
                 }else {
@@ -193,7 +195,7 @@ public class Login extends AppCompatActivity {
                     //saaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
                     progressDialog.show();
                     progressDialog.setCancelable(false);
-                    mAuth.signInWithEmailAndPassword(user_email.getText().toString(),user_password.getText().toString()).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+                    mAuth.signInWithEmailAndPassword(email,password).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
                         @Override
                         public void onComplete(@NonNull Task<AuthResult> task) {
 
@@ -210,17 +212,20 @@ public class Login extends AppCompatActivity {
                                            // i.putExtra("userid","");
                                             progressDialog.dismiss();
                                             startActivity(i);
+                                            finish();
                                         }
                                         else {
                                             progressDialog.dismiss();
-                                            Toast.makeText(Login.this,"User does not Exist",Toast.LENGTH_SHORT).show();
+                                            mAuth.signOut();
+                                            Toast.makeText(Login.this,"This account is not registered as a customer. Use owner login instead.",Toast.LENGTH_LONG).show();
 
                                         }
                                     }
 
                                     @Override
                                     public void onCancelled(@NonNull DatabaseError error) {
-
+                                        progressDialog.dismiss();
+                                        Toast.makeText(Login.this,error.getMessage(),Toast.LENGTH_LONG).show();
                                     }
 
                                 });
@@ -262,6 +267,7 @@ public class Login extends AppCompatActivity {
                          // i.putExtra("userid","");
                          progressDialog.dismiss();
                          startActivity(i);
+                         finish();
                      }
                      else {
                         // Toast.makeText(Login.this,"User does not Exist",Toast.LENGTH_SHORT).show();
@@ -319,6 +325,8 @@ public class Login extends AppCompatActivity {
             } catch (ApiException e) {
                 // Google Sign In failed, update UI appropriately
                 Log.w("TAG", "Google sign in failed", e);
+                progressDialog.dismiss();
+                Toast.makeText(Login.this, "Google sign-in failed. Please try again.", Toast.LENGTH_LONG).show();
             }
         }
     }
@@ -331,28 +339,40 @@ public class Login extends AppCompatActivity {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()) {
-                            progressDialog.dismiss();
-                            // Sign in success, update UI with the signed-in user's information
                             Log.d("TAG", "signInWithCredential:success");
                             FirebaseUser user = mAuth.getCurrentUser();
-                           // Toast.makeText(Login.this,"Signin With Google",Toast.LENGTH_SHORT).show();
-                            startActivity(new Intent(Login.this,custHomeActivity.class));
+                            if (user == null) {
+                                progressDialog.dismiss();
+                                Toast.makeText(Login.this, "Unable to finish Google sign-in. Please try again.", Toast.LENGTH_LONG).show();
+                                return;
+                            }
 
-                            user userr=new user();
+                            user userr = new user();
                             userr.setUser_name(user.getDisplayName());
                             userr.setUser_mail(user.getEmail());
                             userr.setUser_mobile_no(user.getPhoneNumber());
-                            userr.setUser_profile_pic(user.getPhotoUrl().toString());
+                            userr.setUser_profile_pic(user.getPhotoUrl() != null ? user.getPhotoUrl().toString() : "default");
 
-                            database.getReference().child("Users").child(mAuth.getCurrentUser().getUid()).setValue(userr);
-
-
-
-                            //  updateUI(user);
+                            database.getReference().child("Users").child(mAuth.getCurrentUser().getUid()).setValue(userr)
+                                    .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                        @Override
+                                        public void onComplete(@NonNull Task<Void> task) {
+                                            progressDialog.dismiss();
+                                            if (task.isSuccessful()) {
+                                                Toast.makeText(Login.this, "Signed in with Google", Toast.LENGTH_SHORT).show();
+                                                startActivity(new Intent(Login.this, custHomeActivity.class));
+                                                finish();
+                                            } else {
+                                                mAuth.signOut();
+                                                Toast.makeText(Login.this, "Failed to save user data: " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
+                                            }
+                                        }
+                                    });
                         } else {
                             // If sign in fails, display a message to the user.
                             Log.w("TAG", "signInWithCredential:failure", task.getException());
-                           // updateUI(null);
+                            progressDialog.dismiss();
+                            Toast.makeText(Login.this, "Google sign-in failed. Please try again.", Toast.LENGTH_LONG).show();
                         }
                     }
                 });

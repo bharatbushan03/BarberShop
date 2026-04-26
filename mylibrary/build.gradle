@@ -4,6 +4,7 @@ plugins {
 
 android {
     compileSdk 32
+    namespace 'com.barbershop.mylibrary'
 
     defaultConfig {
         minSdk 29

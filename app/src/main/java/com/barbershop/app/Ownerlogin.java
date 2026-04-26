@@ -21,7 +21,6 @@ import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
-import com.google.firebase.FirebaseError;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -121,13 +120,16 @@ public class Ownerlogin extends AppCompatActivity {
             public void onClick(View view) {
 
 
-                if (shopmail.getText().toString().equals("") || password.getText().toString().equals("")) {
+                final String email = shopmail.getText().toString().trim();
+                final String userPassword = password.getText().toString();
+
+                if (email.equals("") || userPassword.equals("")) {
                     Toast.makeText(Ownerlogin.this, "enterrrr all fields", Toast.LENGTH_SHORT).show();
                 }
                 else{
                     progressDialog.show();
 
-                    mAuth.signInWithEmailAndPassword(shopmail.getText().toString(),password.getText().toString()).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+                    mAuth.signInWithEmailAndPassword(email,userPassword).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
                         @Override
                         public void onComplete(@NonNull Task<AuthResult> task) {
 
@@ -145,14 +147,16 @@ public class Ownerlogin extends AppCompatActivity {
                                         }
                                         else {
                                             progressDialog.dismiss();
-                                            Toast.makeText(Ownerlogin.this,"Shop does not Exist",Toast.LENGTH_SHORT).show();
+                                            mAuth.signOut();
+                                            Toast.makeText(Ownerlogin.this,"This account is not registered as a shop owner. Use customer login instead.",Toast.LENGTH_LONG).show();
 
                                         }
                                     }
 
                                     @Override
                                     public void onCancelled(@NonNull DatabaseError error) {
-
+                                        progressDialog.dismiss();
+                                        Toast.makeText(Ownerlogin.this,error.getMessage(),Toast.LENGTH_LONG).show();
                                     }
 
                                 });
