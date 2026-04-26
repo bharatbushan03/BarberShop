@@ -29,6 +29,7 @@ import com.google.android.gms.location.LocationServices;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
@@ -51,7 +52,9 @@ public class Apphomescreen extends Fragment {
     FirebaseDatabase database;
     FirebaseAuth mAuth;
     RecyclerView shop_list_recyclerview;
-    public static ProgressDialog Loading_box;
+    private ProgressDialog loadingBox;
+    private DatabaseReference shopsReference;
+    private ValueEventListener shopsListener;
     ArrayList<Shop> list=new ArrayList<>();
 
     // TODO: Rename and change types of parameters
@@ -119,34 +122,43 @@ public class Apphomescreen extends Fragment {
 
         shop_list_recyclerview=view.findViewById(R.id.shop_list);
 
-        Loading_box=new ProgressDialog(getContext());
-        Loading_box.setTitle("Loading Shops");
-        Loading_box.setMessage("Wait A Moment");
-        Loading_box.show();
+        loadingBox=new ProgressDialog(requireContext());
+        loadingBox.setTitle("Loading Shops");
+        loadingBox.setMessage("Wait A Moment");
+        loadingBox.setCancelable(false);
+        showLoading();
 
 
-
-        database.getReference("Shops").addValueEventListener(new ValueEventListener() {
+        shopsReference = database.getReference("Shops");
+        shopsListener = new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if (!isAdded()) {
+                    return;
+                }
                 list.clear();
                 for (DataSnapshot postSnapshot: snapshot.getChildren()) {
                     Shop shop = postSnapshot.child("shop_details").getValue(Shop.class);
-                    Log.d("shubham",shop.getShop_name());
-                    list.add(shop);
+                    if (shop != null) {
+                        Log.d("shubham",shop.getShop_name());
+                        list.add(shop);
+                    }
                 }
 
                 shop_list_adapter adapter=new shop_list_adapter(list,getContext());
                 shop_list_recyclerview.setAdapter(adapter);
                 shop_list_recyclerview.setLayoutManager(new LinearLayoutManager(getContext()));
+                hideLoading();
 
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
+                hideLoading();
 
             }
-        });
+        };
+        shopsReference.addValueEventListener(shopsListener);
 
         shop_list_recyclerview.addOnItemTouchListener(
                 new RecyclerItemClickListener(getContext(), shop_list_recyclerview, new RecyclerItemClickListener.OnItemClickListener() {
@@ -191,6 +203,27 @@ public class Apphomescreen extends Fragment {
 
 
         return  view;
+    }
+
+    private void showLoading() {
+        if (loadingBox != null && !loadingBox.isShowing()) {
+            loadingBox.show();
+        }
+    }
+
+    private void hideLoading() {
+        if (loadingBox != null && loadingBox.isShowing()) {
+            loadingBox.dismiss();
+        }
+    }
+
+    @Override
+    public void onDestroyView() {
+        if (shopsReference != null && shopsListener != null) {
+            shopsReference.removeEventListener(shopsListener);
+        }
+        hideLoading();
+        super.onDestroyView();
     }
 
 

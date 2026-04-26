@@ -2,7 +2,6 @@ package com.barbershop.app.custom_adapters;
 
 import android.content.Context;
 import android.net.Uri;
-import android.os.Handler;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -11,10 +10,6 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.RatingBar;
 import android.widget.TextView;
-
-import com.barbershop.app.Apphomescreen;
-import com.barbershop.app.custHomeActivity;
-import com.barbershop.app.custom_adapters.shop_list_adapter;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -57,17 +52,19 @@ public class shop_list_adapter extends RecyclerView.Adapter<shop_list_adapter.Vi
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        Log.d("ppl",list.get(position).getShop_name()+" pic="+list.get(position).getShop_profile_pic());
-        holder.getShop_name().setText(""+list.get(position).getShop_name()+"");
-        holder.getOwner_name().setText(""+list.get(position).getOwner_name());
-        Picasso.get().load(list.get(position).getShop_profile_pic()).into(holder.owner_pic);
+        Shop currentShop = list.get(position);
+        Log.d("ppl",currentShop.getShop_name()+" pic="+currentShop.getShop_profile_pic());
+        holder.getShop_name().setText(""+currentShop.getShop_name()+"");
+        holder.getOwner_name().setText(""+currentShop.getOwner_name());
+        Picasso.get().load(currentShop.getShop_profile_pic()).into(holder.owner_pic);
         //child(FirebaseAuth.getInstance().getCurrentUser().getUid()).child("Images").child("Shop_Servces_Images").
         FirebaseDatabase.getInstance().getReference("Shops").addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 for (DataSnapshot datasnapshot: snapshot.getChildren()) {
 
-                    if(datasnapshot.child("shop_details").child("shop_mail").getValue(String.class).equals(list.get(holder.getAdapterPosition()).getShop_mail())){
+                    String shopMail = datasnapshot.child("shop_details").child("shop_mail").getValue(String.class);
+                    if(shopMail != null && shopMail.equals(currentShop.getShop_mail())){
 
 
                         Log.d("OOOID","="+datasnapshot.getKey());
@@ -79,7 +76,7 @@ public class shop_list_adapter extends RecyclerView.Adapter<shop_list_adapter.Vi
                             if(datasnapshot2.child("ratings").getValue(Float.class)!=null)
                                 rating_sum=rating_sum+datasnapshot2.child("ratings").getValue(Float.class);
                         }
-                        Float rating_avg=rating_sum/no_of_ratings;
+                        Float rating_avg = no_of_ratings > 0 ? rating_sum/no_of_ratings : 0f;
                         holder.getR().setRating(rating_avg);
                         holder.getRatings().setText(rating_avg+"("+no_of_ratings+")");
 
@@ -120,7 +117,8 @@ public class shop_list_adapter extends RecyclerView.Adapter<shop_list_adapter.Vi
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 for (DataSnapshot datasnapshot: snapshot.getChildren()) {
-                    if (datasnapshot.child("shop_details").child("shop_mail").getValue(String.class).equals(list.get(position).getShop_mail())) {
+                    String shopMail = datasnapshot.child("shop_details").child("shop_mail").getValue(String.class);
+                    if (shopMail != null && shopMail.equals(currentShop.getShop_mail())) {
                         for (DataSnapshot datasnapshot1 : datasnapshot.child("services").getChildren()) {
 
                             //services services getValue(com.barbershop.app.userdetails.services.class);
@@ -129,9 +127,9 @@ public class shop_list_adapter extends RecyclerView.Adapter<shop_list_adapter.Vi
                             arrayList.add(s);
                         }
                         Log.d("ASDAA",arrayList.size()+"===size");
-                        servicelist_adapter_inshopcard_view servicelist_adapter_inshopcard_view = new servicelist_adapter_inshopcard_view(arrayList, Apphomescreen.Loading_box.getContext());
+                        servicelist_adapter_inshopcard_view servicelist_adapter_inshopcard_view = new servicelist_adapter_inshopcard_view(arrayList, context);
                         holder.getRv().setAdapter(servicelist_adapter_inshopcard_view);
-                        holder.getRv().setLayoutManager(new LinearLayoutManager(Apphomescreen.Loading_box.getContext(),LinearLayoutManager.HORIZONTAL,false));
+                        holder.getRv().setLayoutManager(new LinearLayoutManager(context,LinearLayoutManager.HORIZONTAL,false));
 
                     }
                 }
@@ -143,18 +141,6 @@ public class shop_list_adapter extends RecyclerView.Adapter<shop_list_adapter.Vi
 
             }
         });
-
-
-
-
-       // Picasso.get().load(postSnapshot.getValue(String.class)).into(profileimg);
-        Handler handler = new Handler();
-        handler.postDelayed(new Runnable() {
-            public void run() {
-                Apphomescreen.Loading_box.dismiss();
-            }
-        }, 1000);   //5 seconds
-
 
         // holder.getShop_image().setImageURI(Uri.parse(list.get(position).getShop_profile_pic()));
     }
