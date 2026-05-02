@@ -1,0 +1,8 @@
+# Local configuration example (do not commit real secrets)
+# Copy this file to local.properties and fill in your values.
+
+# Location of the Android SDK
+sdk.dir=C:\\Users\\<user>\\AppData\\Local\\Android\\Sdk
+
+# Google Maps API key (starts with "AIza")
+MAPS_API_KEY=YOUR_API_KEY_HERE

@@ -43,7 +43,7 @@
             android:drawableLeft="@drawable/user12"
             android:ems="10"
             android:hint="Shop-mail"
-            android:inputType="textPersonName"
+            android:inputType="textEmailAddress"
             android:minHeight="48dp"
             android:paddingLeft="15dp"
             android:textSize="26sp" />

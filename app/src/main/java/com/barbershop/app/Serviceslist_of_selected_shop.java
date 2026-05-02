@@ -91,6 +91,10 @@ public class Serviceslist_of_selected_shop extends Fragment {
         book.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                 if (ad == null) {
+                     Toast.makeText(getContext(),"Services are still loading. Please wait.",Toast.LENGTH_SHORT).show();
+                     return;
+                 }
                 Intent i=new Intent(getContext(),select_date_and_time_activity.class);
                  i.putStringArrayListExtra("selected_services",ad.a2);
                  i.putExtra("shop_id",shop_id);
@@ -112,7 +116,9 @@ public class Serviceslist_of_selected_shop extends Fragment {
                 for (DataSnapshot datasnapshot : snapshot.getChildren()
                 ) {
                     services s = datasnapshot.getValue(services.class);
-                    al.add(s);
+                    if (s != null) {
+                        al.add(s);
+                    }
                 }
                 ad = new serviceslist_of_selected_shop_adapter(al, getContext());
                 services_list_selected_shop.setAdapter(ad);

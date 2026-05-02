@@ -39,6 +39,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Locale;
 import java.util.Objects;
 
 public class select_date_and_time_activity extends AppCompatActivity {
@@ -88,7 +89,7 @@ public class select_date_and_time_activity extends AppCompatActivity {
 calendar.setOnDateChangeListener(new CalendarView.OnDateChangeListener() {
     @Override
     public void onSelectedDayChange(@NonNull CalendarView calendarView, int i, int i1, int i2) {
-        appointment_date=i2+"-"+i1+"-"+i;
+        appointment_date=i2+"-"+(i1 + 1)+"-"+i;
     }
 });
 
@@ -101,7 +102,7 @@ calendar.setOnDateChangeListener(new CalendarView.OnDateChangeListener() {
                 shopname=snapshot.child("shop_details").child("shop_name").getValue(String.class);
                 for (DataSnapshot snapshot_for_service:snapshot.child("services").getChildren()
                      ) {
-                    if(selected_services_list.contains(snapshot_for_service.child("service_name").getValue(String.class))) {
+                    if(selected_services_list != null && selected_services_list.contains(snapshot_for_service.child("service_name").getValue(String.class))) {
                         all_service_info.add(snapshot_for_service.child("service_name").getValue(String.class) + " - " + snapshot_for_service.child("service_duration").getValue(String.class) + "mins - " + snapshot_for_service.child("service_price").getValue(String.class) + "$");
                         Total_amount=Total_amount+Integer.parseInt(snapshot_for_service.child("service_price").getValue(String.class));
 
@@ -110,7 +111,7 @@ calendar.setOnDateChangeListener(new CalendarView.OnDateChangeListener() {
                 ArrayAdapter<String> ad=new ArrayAdapter<>(select_date_and_time_activity.this,android.R.layout.simple_list_item_1,all_service_info);
                 showing_selected_services_listview.setAdapter(ad);
 
-                shop_name_in_selectdate_activity.setText(shop_name_in_selectdate_activity.getText().toString().replace("Evans Saloon",snapshot.child("shop_details").child("shop_name").getValue(String.class)));
+                shop_name_in_selectdate_activity.setText(getString(R.string.appointment_booking_title, shopname));
 
                 ArrayList<String> slots_list_ofstrings=new ArrayList<>();
                 if(snapshot.child("shop_details").child("slots_for_booking").exists()){
@@ -120,64 +121,9 @@ calendar.setOnDateChangeListener(new CalendarView.OnDateChangeListener() {
                     ) {
                         slots_list_ofstrings.add(datasnapshot.getValue(String.class));
                     }
-
-                    if(no_of_slots==1){
-                        slot1.setVisibility(View.VISIBLE);
-                        slot1.setText(slots_list_ofstrings.get(0));
-                    }
-                    if(no_of_slots==2){
-                        slot1.setVisibility(View.VISIBLE);
-                        slot2.setVisibility(View.VISIBLE);
-                        slot1.setText(slots_list_ofstrings.get(0));
-                        slot2.setText(slots_list_ofstrings.get(1));
-                    }
-                    if(no_of_slots==3){
-                        slot1.setVisibility(View.VISIBLE);
-                        slot2.setVisibility(View.VISIBLE);
-                        slot3.setVisibility(View.VISIBLE);
-                        slot1.setText(slots_list_ofstrings.get(0));
-                        slot2.setText(slots_list_ofstrings.get(1));
-                        slot3.setText(slots_list_ofstrings.get(2));
-                    }
-
-                    if(no_of_slots==4){
-                        slot1.setVisibility(View.VISIBLE);
-                        slot2.setVisibility(View.VISIBLE);
-                        slot3.setVisibility(View.VISIBLE);
-                        slot4.setVisibility(View.VISIBLE);
-                        slot1.setText(slots_list_ofstrings.get(0));
-                        slot2.setText(slots_list_ofstrings.get(1));
-                        slot3.setText(slots_list_ofstrings.get(2));
-                        slot4.setText(slots_list_ofstrings.get(3));
-                    }
-                    if(no_of_slots==5){
-                        slot1.setVisibility(View.VISIBLE);
-                        slot2.setVisibility(View.VISIBLE);
-                        slot3.setVisibility(View.VISIBLE);
-                        slot4.setVisibility(View.VISIBLE);
-                        slot5.setVisibility(View.VISIBLE);
-                        slot1.setText(slots_list_ofstrings.get(0));
-                        slot2.setText(slots_list_ofstrings.get(1));
-                        slot3.setText(slots_list_ofstrings.get(2));
-                        slot4.setText(slots_list_ofstrings.get(3));
-                        slot4.setText(slots_list_ofstrings.get(4));
-                    }
-                    if(no_of_slots==6){
-                        slot1.setVisibility(View.VISIBLE);
-                        slot2.setVisibility(View.VISIBLE);
-                        slot3.setVisibility(View.VISIBLE);
-                        slot4.setVisibility(View.VISIBLE);
-                        slot5.setVisibility(View.VISIBLE);
-                        slot6.setVisibility(View.VISIBLE);
-                        slot1.setText(slots_list_ofstrings.get(0));
-                        slot2.setText(slots_list_ofstrings.get(1));
-                        slot3.setText(slots_list_ofstrings.get(2));
-                        slot4.setText(slots_list_ofstrings.get(3));
-                        slot4.setText(slots_list_ofstrings.get(4));
-                        slot5.setText(slots_list_ofstrings.get(5));
-                    }
+                    updateSlotViews(slots_list_ofstrings);
                    }else {
-
+                    updateSlotViews(slots_list_ofstrings);
                 }
 
             }
@@ -257,19 +203,25 @@ calendar.setOnDateChangeListener(new CalendarView.OnDateChangeListener() {
         make_payment_btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                String slot="";
-                if(slot6.isChecked())slot=slot6.getText().toString();
-                if(slot5.isChecked())slot=slot5.getText().toString();
-                if(slot4.isChecked())slot=slot4.getText().toString();
-                if(slot3.isChecked())slot=slot3.getText().toString();
-                if(slot2.isChecked())slot=slot2.getText().toString();
-                if(slot1.isChecked())slot=slot1.getText().toString();
+                String slot = getSelectedSlot();
+                if(slot.equals("")){
+                    Toast.makeText(select_date_and_time_activity.this, "Please select a time slot", Toast.LENGTH_SHORT).show();
+                    return;
+                }
                 if(appointment_date.equals("")){
                     final Calendar start_range=Calendar.getInstance();
                     int d=start_range.get(Calendar.DAY_OF_MONTH);
-                    int m=start_range.get(Calendar.MONTH);
+                    int m=start_range.get(Calendar.MONTH) + 1;
                     int y=start_range.get(Calendar.YEAR);
                     appointment_date=d+"-"+m+"-"+y;
+                }
+                if (shopname == null || shopname.trim().isEmpty()) {
+                    Toast.makeText(select_date_and_time_activity.this, "Shop details are still loading. Please try again.", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                if (FirebaseAuth.getInstance().getCurrentUser() == null) {
+                    Toast.makeText(select_date_and_time_activity.this, "Please log in again before booking.", Toast.LENGTH_SHORT).show();
+                    return;
                 }
 
                 FirebaseDatabase.getInstance().getReference("Users").child(FirebaseAuth.getInstance().getCurrentUser().getUid()).child("appointments").child(shop_id).child("shop_name").setValue(shopname);
@@ -295,7 +247,7 @@ calendar.setOnDateChangeListener(new CalendarView.OnDateChangeListener() {
                     FirebaseDatabase.getInstance().getReference("Users").child(FirebaseAuth.getInstance().getCurrentUser().getUid()).child("appointments").child(shop_id).child("appointment_dates").child(appointment_date).child("services").child(s.substring(0,s.indexOf('-'))).setValue(s);
                 }
 
-                FirebaseDatabase.getInstance().getReference("Users").child(FirebaseAuth.getInstance().getCurrentUser().getUid()).child("user_name").addValueEventListener(new ValueEventListener() {
+                FirebaseDatabase.getInstance().getReference("Users").child(FirebaseAuth.getInstance().getCurrentUser().getUid()).child("user_name").addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot snapshot) {
                         FirebaseDatabase.getInstance().getReference("Shops").child(shop_id).child("appointments").child(FirebaseAuth.getInstance().getCurrentUser().getUid()).child("customer_name").setValue(snapshot.getValue(String.class));
@@ -323,7 +275,7 @@ calendar.setOnDateChangeListener(new CalendarView.OnDateChangeListener() {
 
                 Intent chooser=Intent.createChooser(intent,"Pay to Shop Name With");
                 if(chooser.resolveActivity(getPackageManager())!=null){
-                    startActivityForResult(intent, PAY_REQUEST_CODE);
+                    startActivityForResult(chooser, PAY_REQUEST_CODE);
                 }else {
                     Toast.makeText(select_date_and_time_activity.this, "No upi app Found Please Install!!", Toast.LENGTH_SHORT).show();
                 }
@@ -376,6 +328,29 @@ calendar.setOnDateChangeListener(new CalendarView.OnDateChangeListener() {
 //
 //    }
 
+    private void updateSlotViews(ArrayList<String> slots) {
+        CheckBox[] slotViews = new CheckBox[] {slot1, slot2, slot3, slot4, slot5, slot6};
+        for (CheckBox slotView : slotViews) {
+            slotView.setVisibility(View.GONE);
+            slotView.setChecked(false);
+            slotView.setText("");
+        }
+        for (int index = 0; index < slots.size() && index < slotViews.length; index++) {
+            slotViews[index].setVisibility(View.VISIBLE);
+            slotViews[index].setText(slots.get(index));
+        }
+    }
+
+    private String getSelectedSlot() {
+        if(slot6.isChecked())return slot6.getText().toString();
+        if(slot5.isChecked())return slot5.getText().toString();
+        if(slot4.isChecked())return slot4.getText().toString();
+        if(slot3.isChecked())return slot3.getText().toString();
+        if(slot2.isChecked())return slot2.getText().toString();
+        if(slot1.isChecked())return slot1.getText().toString();
+        return "";
+    }
+
     private void upiPaymentDataOperation(ArrayList<String> data) {
         if (isConnectionAvailable(select_date_and_time_activity.this)) {
             String str = data.get(0);
@@ -388,10 +363,10 @@ calendar.setOnDateChangeListener(new CalendarView.OnDateChangeListener() {
             for (int i = 0; i < response.length; i++) {
                 String equalStr[] = response[i].split("=");
                 if(equalStr.length >= 2) {
-                    if (equalStr[0].toLowerCase().equals("Status".toLowerCase())) {
-                        status = equalStr[1].toLowerCase();
+                    if (equalStr[0].toLowerCase(Locale.ROOT).equals("Status".toLowerCase(Locale.ROOT))) {
+                        status = equalStr[1].toLowerCase(Locale.ROOT);
                     }
-                    else if (equalStr[0].toLowerCase().equals("ApprovalRefNo".toLowerCase()) || equalStr[0].toLowerCase().equals("txnRef".toLowerCase())) {
+                    else if (equalStr[0].toLowerCase(Locale.ROOT).equals("ApprovalRefNo".toLowerCase(Locale.ROOT)) || equalStr[0].toLowerCase(Locale.ROOT).equals("txnRef".toLowerCase(Locale.ROOT))) {
                         approvalRefNo = equalStr[1];
                     }
                 }

@@ -33,6 +33,10 @@ android {
     buildFeatures {
         viewBinding true
     }
+    
+    lint {
+        disable 'ExpiredTargetSdkVersion'
+    }
 }
 
 dependencies {
@@ -58,6 +62,13 @@ dependencies {
     implementation 'de.hdodenhof:circleimageview:3.1.0'
     implementation 'androidx.browser:browser:1.4.0'
     implementation "androidx.cardview:cardview:1.0.0"
+    
+    // MVVM Architecture Components
+    implementation 'androidx.lifecycle:lifecycle-viewmodel:2.5.1'
+    implementation 'androidx.lifecycle:lifecycle-livedata:2.5.1'
+    implementation 'androidx.lifecycle:lifecycle-runtime:2.5.1'
+    implementation 'androidx.activity:activity:1.5.1'
+    
     coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.0.4'
 }
 

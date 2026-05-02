@@ -12,5 +12,6 @@
     <string name="title_activity_maps2">MapsActivity2</string>
     <string name="title_activity_maps_activitysa">MapsActivitysa</string>
     <string name="delete_account">Delete Account</string>
+    <string name="appointment_booking_title">Your Appointment With %1$s</string>
 
 </resources>

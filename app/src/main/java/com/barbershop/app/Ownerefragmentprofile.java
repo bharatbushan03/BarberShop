@@ -69,6 +69,8 @@ import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 import com.squareup.picasso.Picasso;
 
+import com.barbershop.app.ui.auth.ownerlogin.OwnerLoginActivity;
+
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -186,6 +188,16 @@ public class Ownerefragmentprofile extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view=inflater.inflate(R.layout.fragment_ownerefragmentprofile, container, false);
+
+        FirebaseUser currentUser = mAuth.getCurrentUser();
+        if (currentUser == null) {
+            Toast.makeText(getContext(), "Please log in again.", Toast.LENGTH_SHORT).show();
+            startActivity(new Intent(getContext(), OwnerLoginActivity.class));
+            if (getActivity() != null) {
+                getActivity().finish();
+            }
+            return view;
+        }
 
         LayoutInflater li = LayoutInflater.from(getContext());
         re_authbox = li.inflate(R.layout.re_authbox, null);
@@ -327,21 +339,40 @@ public class Ownerefragmentprofile extends Fragment {
         FirebaseDatabase.getInstance().getReference("Shops").child(mAuth.getCurrentUser().getUid()).child("shop_details").addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                String ot=snapshot.child("schedule").child("opening_time").getValue(String.class).replace("AM","");
-                ot=ot.replace("PM","");
-               String ot1=ot.substring(0,ot.indexOf(':'));
-               String ot2=ot.substring(ot.indexOf(':')+1,ot.length()-1);
-               Log.d("OTTT","ot=hour="+ot1+"min="+ot2);
-               opening_time_hour_as_int=Integer.parseInt(ot1);
-                opening_time_min_as_int=Integer.parseInt(ot2);
+                if (!isAdded()) {
+                    return;
+                }
 
-                String ct=snapshot.child("schedule").child("closing_time").getValue(String.class).replace("AM","");
-                ct=ct.replace("PM","");
-                String ct1=ct.substring(0,ct.indexOf(':'));
-                String ct2=ct.substring(ct.indexOf(':')+1,ct.length()-1);
-                Log.d("OTTT","ct=hour="+ct1+"min="+ct2);
-                closing_time_hour_as_int=Integer.parseInt(ct1);
-                closing_time_min_as_int=Integer.parseInt(ct2);
+                String openingRaw = snapshot.child("schedule").child("opening_time").getValue(String.class);
+                String closingRaw = snapshot.child("schedule").child("closing_time").getValue(String.class);
+
+                boolean parsedSchedule = false;
+                if (openingRaw != null && closingRaw != null) {
+                    String openingClean = openingRaw.replace("AM", "").replace("PM", "").trim();
+                    String closingClean = closingRaw.replace("AM", "").replace("PM", "").trim();
+
+                    String[] openingParts = openingClean.split(":");
+                    String[] closingParts = closingClean.split(":");
+
+                    if (openingParts.length >= 2 && closingParts.length >= 2) {
+                        try {
+                            opening_time_hour_as_int = Integer.parseInt(openingParts[0].trim());
+                            opening_time_min_as_int = Integer.parseInt(openingParts[1].trim());
+                            closing_time_hour_as_int = Integer.parseInt(closingParts[0].trim());
+                            closing_time_min_as_int = Integer.parseInt(closingParts[1].trim());
+                            parsedSchedule = true;
+                        } catch (NumberFormatException e) {
+                            parsedSchedule = false;
+                        }
+                    }
+                }
+
+                if (!parsedSchedule) {
+                    opening_time_hour_as_int = 0;
+                    opening_time_min_as_int = 0;
+                    closing_time_hour_as_int = 23;
+                    closing_time_min_as_int = 59;
+                }
 
 
                 //opening_time_as_int=Integer.parseInt();
@@ -537,46 +568,62 @@ public class Ownerefragmentprofile extends Fragment {
         FirebaseDatabase.getInstance().getReference("Shops").child(mAuth.getCurrentUser().getUid()).child("shop_details").addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if (!isAdded()) {
+                    return;
+                }
                 if(snapshot.child("schedule").exists()){
                     for (DataSnapshot datasnapshot:snapshot.child("schedule").getChildren()
                          ) {
                         if(!datasnapshot.getKey().equals("opening_time") && !datasnapshot.getKey().equals("closing_time")){
 
+                            String dayStatus = datasnapshot.getValue(String.class);
                             if(datasnapshot.getKey().equals("sunday")){
-                               if(datasnapshot.getValue(String.class).equals("Open"))
+                               if("Open".equals(dayStatus)) {
                                 sunday_open.setChecked(true);
+                               }
                             }
                             if(datasnapshot.getKey().equals("monday")){
-                                if(datasnapshot.getValue(String.class).equals("Open"))
-                                monday_open.setChecked(true);
+                                if("Open".equals(dayStatus)) {
+                                    monday_open.setChecked(true);
+                                }
                             }
                             if(datasnapshot.getKey().equals("tuesday")){
-                                if(datasnapshot.getValue(String.class).equals("Open"))
-                                tuesday_open.setChecked(true);
+                                if("Open".equals(dayStatus)) {
+                                    tuesday_open.setChecked(true);
+                                }
                             }
                             if(datasnapshot.getKey().equals("wednesday")){
-                                if(datasnapshot.getValue(String.class).equals("Open"))
-                                wednesday_open.setChecked(true);
+                                if("Open".equals(dayStatus)) {
+                                    wednesday_open.setChecked(true);
+                                }
                             }
                             if(datasnapshot.getKey().equals("thursday")){
-                                if(datasnapshot.getValue(String.class).equals("Open"))
+                                if("Open".equals(dayStatus)) {
                                     thursday_open.setChecked(true);
+                                }
                             }
                             if(datasnapshot.getKey().equals("friday")){
-                                if(datasnapshot.getValue(String.class).equals("Open"))
-                                friday_open.setChecked(true);
+                                if("Open".equals(dayStatus)) {
+                                    friday_open.setChecked(true);
+                                }
                             }
                             if(datasnapshot.getKey().equals("saturday")){
-                                if(datasnapshot.getValue(String.class).equals("Open"))
-                                saturday_open.setChecked(true);
+                                if("Open".equals(dayStatus)) {
+                                    saturday_open.setChecked(true);
+                                }
                             }
                         }else {
                             Log.d("RRRR",datasnapshot.getKey());
                             if(datasnapshot.getKey().equals("opening_time")){
-                                opentiming_textview.setText(datasnapshot.getValue(String.class));
+                                String openingTime = datasnapshot.getValue(String.class);
+                                if (openingTime != null) {
+                                    opentiming_textview.setText(openingTime);
+                                }
                             }else {
-
-                                closedtiming_textview.setText(datasnapshot.getValue(String.class));
+                                String closingTime = datasnapshot.getValue(String.class);
+                                if (closingTime != null) {
+                                    closedtiming_textview.setText(closingTime);
+                                }
                             }
                         }
                     }
@@ -1242,16 +1289,23 @@ cancelbtn_addshopimg_alertbox.setVisibility(View.VISIBLE);
     public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if(requestCode==pick_image){
-            if(resultCode==RESULT_OK) {
-                Cursor returnCursor = getActivity().getContentResolver().query(data.getData(), null, null, null, null);
-                int nameIndex = returnCursor.getColumnIndex(OpenableColumns.DISPLAY_NAME);
-                int sizeIndex = returnCursor.getColumnIndex(OpenableColumns.SIZE);
-                returnCursor.moveToFirst();
-                Long Image_size = (returnCursor.getLong(sizeIndex) / 1000);
-                Log.d("TAGp", "Name:" + returnCursor.getString(nameIndex));
-                Log.d("TAGp", "Size: " + Image_size);
-                if(Image_size<=500){
-                if(selected_btn_in_alertbox.equals("browse_owner_pic")){
+            if(resultCode==RESULT_OK && data != null && data.getData() != null && getActivity() != null) {
+                try (Cursor returnCursor = getActivity().getContentResolver().query(data.getData(), null, null, null, null)) {
+                    if (returnCursor == null) {
+                        Toast.makeText(getActivity(), "Unable to read selected image.", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                    int nameIndex = returnCursor.getColumnIndex(OpenableColumns.DISPLAY_NAME);
+                    int sizeIndex = returnCursor.getColumnIndex(OpenableColumns.SIZE);
+                    if (!returnCursor.moveToFirst()) {
+                        Toast.makeText(getActivity(), "Unable to read selected image.", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                    Long Image_size = (returnCursor.getLong(sizeIndex) / 1000);
+                    Log.d("TAGp", "Name:" + returnCursor.getString(nameIndex));
+                    Log.d("TAGp", "Size: " + Image_size);
+                    if(Image_size<=500){
+                if("browse_owner_pic".equals(selected_btn_in_alertbox)){
                         Loadimg.setVisibility(View.VISIBLE);
                         browsebtn.setVisibility(View.GONE);
                     FirebaseStorage.getInstance().getReference().child("Shopimages").child(mAuth.getCurrentUser().getUid()).child(data.getData().toString().replace("content://com.android.providers.media.documents/document/", "")).putFile(data.getData()).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
@@ -1272,7 +1326,7 @@ cancelbtn_addshopimg_alertbox.setVisibility(View.VISIBLE);
                         }
                     });
                 }
-                if(selected_btn_in_alertbox.equals("add_shop_service_image_btn_alertbox")){
+                if("add_shop_service_image_btn_alertbox".equals(selected_btn_in_alertbox)){
                     progressDialog.setTitle("Uploading Image...");
                     progressDialog.setMessage("Take a Sip..");
                     progressDialog.setCancelable(false);
@@ -1302,7 +1356,7 @@ cancelbtn_addshopimg_alertbox.setVisibility(View.VISIBLE);
 
 
             }
-                if(selected_btn_in_alertbox.equals("add_shop_images_btn")){
+                if("add_shop_images_btn".equals(selected_btn_in_alertbox)){
                     progressDialog.setTitle("Uploading Image...");
                     progressDialog.setMessage("Take a Sip..");
                     progressDialog.setCancelable(false);
@@ -1332,9 +1386,10 @@ cancelbtn_addshopimg_alertbox.setVisibility(View.VISIBLE);
 
                 }
 
-                }
-                else {
-                    Toast.makeText(getContext(),"Image Size Must be Less than 500Kb!!",Toast.LENGTH_SHORT).show();
+                    }
+                    else {
+                        Toast.makeText(getContext(),"Image Size Must be Less than 500Kb!!",Toast.LENGTH_SHORT).show();
+                    }
                 }
             }
         }

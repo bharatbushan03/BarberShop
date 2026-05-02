@@ -27,30 +27,31 @@ public static final String dbname="userLogindb";
     }
 
     public boolean insertData(String username,String password,String mobile_no,String user_email){
-        SQLiteDatabase mydb=this.getReadableDatabase();
+        SQLiteDatabase mydb=this.getWritableDatabase();
         ContentValues contentValues=new ContentValues();
         contentValues.put("username",username);
         contentValues.put("password",password);
-        contentValues.put("mobile_no",mobile_no);
-        contentValues.put("user_email",user_email);
+        contentValues.put("mobileno",mobile_no);
+        contentValues.put("useremail",user_email);
         long result=mydb.insert("userLogindb",null,contentValues);
         return result != -1;
 
     }
     public Boolean checkusername(String username){
         SQLiteDatabase mydb=this.getReadableDatabase();
-        Cursor cursor=mydb.rawQuery("Select * from userLogindb where username=?",new String[]{username});
-        return cursor.getCount() > 0;
+        try (Cursor cursor=mydb.rawQuery("Select * from userLogindb where username=?",new String[]{username})) {
+            return cursor.getCount() > 0;
+        }
     }
 
     public Boolean checkusernamepassword(String username,String password){
         SQLiteDatabase mydb=this.getReadableDatabase();
-        Cursor cursor=mydb.rawQuery("Select * from userLogindb where username=? and password=?",new String[]{username,password});
-
-        if(cursor.getCount()>0){
-            return true;
-        }else {
-            return  false;
+        try (Cursor cursor=mydb.rawQuery("Select * from userLogindb where username=? and password=?",new String[]{username,password})) {
+            if(cursor.getCount()>0){
+                return true;
+            }else {
+                return  false;
+            }
         }
     }
 }

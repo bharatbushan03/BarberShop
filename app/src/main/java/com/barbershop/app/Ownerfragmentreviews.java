@@ -1,15 +1,12 @@
 package com.barbershop.app;
 
-import android.os.Build;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -104,10 +101,14 @@ public class Ownerfragmentreviews extends Fragment {
         progressBar_5_star=view.findViewById(R.id.progressBar_5_star);
 
         FirebaseDatabase.getInstance().getReference("Shops").child(FirebaseAuth.getInstance().getCurrentUser().getUid()).child("Reviews").addValueEventListener(new ValueEventListener() {
-            @RequiresApi(api = Build.VERSION_CODES.N)
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                    no_of_reviews_int=0l;
+                if (!isAdded()) {
+                    return;
+                }
+
+                avg_ratings=0f;
+                no_of_reviews_int=snapshot.getChildrenCount();
                 one_rating_given_customers_count=0l;
                 two_rating_given_customers_count=0l;
                 three_rating_given_customers_count=0l;
@@ -117,30 +118,30 @@ public class Ownerfragmentreviews extends Fragment {
 
                 for (DataSnapshot datasnapshot1: snapshot.getChildren()
                 ) {
-                    no_of_reviews_int=snapshot.getChildrenCount();
                     String cust_name = datasnapshot1.child("cust_name").getValue(String.class);
                     Float ratings = datasnapshot1.child("ratings").getValue(Float.class);
-                    Log.d("RAtings",ratings+"no of =="+no_of_reviews_int+"math round"+Math.round(ratings));
-                    avg_ratings=avg_ratings+ratings;
+                    Float safeRating = ratings != null ? ratings : 0f;
+                    avg_ratings=avg_ratings+safeRating;
 
                     if(ratings!=null){
-                        if(Math.round(ratings)==1){
+                        long rounded = Math.round(ratings);
+                        if(rounded==1){
                             one_rating_given_customers_count++;
                         }
 
-                        if(Math.round(ratings)==2){
+                        if(rounded==2){
                             two_rating_given_customers_count++;
                         }
 
-                        if(Math.round(ratings)==3){
+                        if(rounded==3){
                             three_rating_given_customers_count++;
                         }
 
-                        if(Math.round(ratings)==4){
+                        if(rounded==4){
                             four_rating_given_customers_count++;
                         }
 
-                        if(Math.round(ratings)==5){
+                        if(rounded==5){
                             five_rating_given_customers_count++;
                         }}
 
@@ -163,8 +164,27 @@ public class Ownerfragmentreviews extends Fragment {
                         }
                         i++;
                     }
-                    reviewdetail_class obj = new reviewdetail_class(cust_name, img1, img2, img3, img4, feedbacktext, ratings);
+                    reviewdetail_class obj = new reviewdetail_class(cust_name, img1, img2, img3, img4, feedbacktext, safeRating);
                     reviews_objcts_list.add(obj);
+                }
+                if(no_of_reviews_int==0){
+                    avg_ratingtext.setText("0");
+                    no_of_reviews.setText("(0 Reviews)");
+                    progressBar_1_star.setProgress(0);
+                    progressBar_2_star.setProgress(0);
+                    progressBar_3_star.setProgress(0);
+                    progressBar_4_star.setProgress(0);
+                    progressBar_5_star.setProgress(0);
+                    reviews_of_1_inpercent.setText("0%");
+                    reviews_of_2_inpercent.setText("0%");
+                    reviews_of_3_inpercent.setText("0%");
+                    reviews_of_4_inpercent.setText("0%");
+                    reviews_of_5_inpercent.setText("0%");
+
+                    reviews_list_selectedshop_adapter ad=new reviews_list_selectedshop_adapter(reviews_objcts_list,getContext());
+                    rv.setAdapter(ad);
+                    rv.setLayoutManager(new LinearLayoutManager(getContext()));
+                    return;
                 }
 
                 avg_ratings=avg_ratings/no_of_reviews_int;
@@ -175,15 +195,15 @@ public class Ownerfragmentreviews extends Fragment {
                 three_rating_given_customers_count=(three_rating_given_customers_count*100/no_of_reviews_int);
                 four_rating_given_customers_count=(four_rating_given_customers_count*100/no_of_reviews_int);
                 five_rating_given_customers_count=(five_rating_given_customers_count*100/no_of_reviews_int);
-                progressBar_1_star.setProgress(Math.toIntExact(one_rating_given_customers_count),true);
+                progressBar_1_star.setProgress(one_rating_given_customers_count.intValue());
                 reviews_of_1_inpercent.setText(one_rating_given_customers_count+"%");
-                progressBar_2_star.setProgress(Math.toIntExact(two_rating_given_customers_count),true);
+                progressBar_2_star.setProgress(two_rating_given_customers_count.intValue());
                 reviews_of_2_inpercent.setText(two_rating_given_customers_count+"%");
-                progressBar_3_star.setProgress(Math.toIntExact(three_rating_given_customers_count),true);
+                progressBar_3_star.setProgress(three_rating_given_customers_count.intValue());
                 reviews_of_3_inpercent.setText(three_rating_given_customers_count+"%");
-                progressBar_4_star.setProgress(Math.toIntExact(four_rating_given_customers_count),true);
+                progressBar_4_star.setProgress(four_rating_given_customers_count.intValue());
                 reviews_of_4_inpercent.setText(four_rating_given_customers_count+"%");
-                progressBar_5_star.setProgress(Math.toIntExact(five_rating_given_customers_count),true);
+                progressBar_5_star.setProgress(five_rating_given_customers_count.intValue());
                 reviews_of_5_inpercent.setText(five_rating_given_customers_count+"%");
 
 

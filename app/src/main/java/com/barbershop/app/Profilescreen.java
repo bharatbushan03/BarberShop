@@ -277,47 +277,43 @@ public class Profilescreen extends Fragment {
 
           //  Log.d("piooo userid inprofile", getArguments().getString("userid"));
 //            Log.d("piooo mauthuse profile", mAuth.getCurrentUser().getUid());
+        database.getReference("Users").child(mAuth.getCurrentUser().getUid()).addValueEventListener(new ValueEventListener() {
+
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
 
 
+                //  Log.d("piooogettinfoinprofile", mAuth.getCurrentUser().getUid() + "data:" + snapshot.getValue(user.class).getUser_name());
 
+                user userdetail = snapshot.getValue(user.class);
+                if (userdetail != null) {
+                    editname.setText(userdetail.getUser_name());
 
-                database.getReference("Users").child(mAuth.getCurrentUser().getUid()).addValueEventListener(new ValueEventListener() {
+                    editmail.setText(userdetail.getUser_mail());
+                    mail=editmail.getText().toString();
+                    Log.d("TAGkk onviewcreatemail",mail);
+                    editmobile.setText(userdetail.getUser_mobile_no());
+                    if(userdetail.getUser_profile_pic()!=null)
+                        Picasso.get().load(Uri.parse(userdetail.getUser_profile_pic())).into(profileimg);
+                    progressDialog.dismiss();
+                    editname.setEnabled(false);
+                    editmail.setEnabled(false);
 
-                    @Override
-                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                    editmobile.setEnabled(false);
 
+                    Handler handler = new Handler();
+                    handler.postDelayed(new Runnable() {
+                        public void run() {
+                            // yourMethod();
 
-                        //  Log.d("piooogettinfoinprofile", mAuth.getCurrentUser().getUid() + "data:" + snapshot.getValue(user.class).getUser_name());
-
-                        user userdetail = snapshot.getValue(user.class);
-                        if (userdetail != null) {
-                            editname.setText(userdetail.getUser_name());
-
-                            editmail.setText(userdetail.getUser_mail());
-                            mail=editmail.getText().toString();
-                            Log.d("TAGkk onviewcreatemail",mail);
-                            editmobile.setText(userdetail.getUser_mobile_no());
-                                if(userdetail.getUser_profile_pic()!=null)
-                            Picasso.get().load(Uri.parse(userdetail.getUser_profile_pic())).into(profileimg);
                             progressDialog.dismiss();
-                            editname.setEnabled(false);
-                            editmail.setEnabled(false);
-
-                            editmobile.setEnabled(false);
-
-                            Handler handler = new Handler();
-                            handler.postDelayed(new Runnable() {
-                                public void run() {
-                                    // yourMethod();
-
-                                    progressDialog.dismiss();
 
 
-                                }
-                            }, 0);   //5 seconds
+                        }
+                    }, 0);   //5 seconds
 
-                        } else {
-                           // Toast.makeText(getContext(), "cant find any user", Toast.LENGTH_SHORT).show();
+                } else {
+                   // Toast.makeText(getContext(), "cant find any user", Toast.LENGTH_SHORT).show();
                         }
                     }
 

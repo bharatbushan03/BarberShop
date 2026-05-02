@@ -10,6 +10,7 @@ import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.view.MenuItem;
 
+import com.barbershop.app.ui.customer.home.HomeFragment;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationBarView;
 import com.google.firebase.auth.FirebaseAuth;
@@ -34,7 +35,7 @@ public class custHomeActivity extends AppCompatActivity {
 
         bottomNavigationView=findViewById(R.id.cust_bottomNavigationView);
         FragmentTransaction fragmentTransaction=getSupportFragmentManager().beginTransaction();
-        fragmentTransaction.replace(R.id.fm,new Apphomescreen()).commit();
+        fragmentTransaction.replace(R.id.fm,new HomeFragment()).commit();
         //userid=getIntent().getStringExtra("userid");
 
 
@@ -61,9 +62,9 @@ public class custHomeActivity extends AppCompatActivity {
 
                 if (item.getItemId() == R.id.home) {
                     fragmentTransaction=getSupportFragmentManager().beginTransaction();
-                    Apphomescreen apphomescreen=new Apphomescreen();
+                    HomeFragment homeFragment=new HomeFragment();
 
-                    fragmentTransaction.replace(R.id.fm,apphomescreen).commit();
+                    fragmentTransaction.replace(R.id.fm,homeFragment).commit();
                 }
                 if (item.getItemId() == R.id.appointments) {
                    fragmentTransaction=getSupportFragmentManager().beginTransaction();

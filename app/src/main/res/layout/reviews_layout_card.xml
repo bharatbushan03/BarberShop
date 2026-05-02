@@ -127,7 +127,6 @@
             android:id="@+id/feedbacktext_review_card"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:inputType="textMultiLine"
             android:minLines="3"
             android:maxLines="15"
             android:textColor="#3d3d3d"

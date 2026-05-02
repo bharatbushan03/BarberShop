@@ -19,6 +19,12 @@
         android:title="services"
         />
 
+    <item
+        android:id="@+id/payments"
+        android:icon="@drawable/ic_baseline_attach_money_24"
+        android:title="payments"
+        />
+
 
 
     <item

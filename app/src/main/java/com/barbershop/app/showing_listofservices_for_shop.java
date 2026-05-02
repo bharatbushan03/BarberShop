@@ -331,10 +331,11 @@ public class showing_listofservices_for_shop extends Fragment {
                 for (DataSnapshot datasnapshot2:snapshot.child("Reviews").getChildren()
                      ) {
                     no_of_ratings=snapshot.child("Reviews").getChildrenCount();
-                    if(datasnapshot2.child("ratings").getValue(Float.class)!=null)
-                    rating_sum=rating_sum+datasnapshot2.child("ratings").getValue(Float.class);
+                    if(datasnapshot2.child("ratings").getValue(Float.class)!=null) {
+                        rating_sum=rating_sum+datasnapshot2.child("ratings").getValue(Float.class);
+                    }
                 }
-                Float rating_avg=rating_sum/no_of_ratings;
+                Float rating_avg = no_of_ratings > 0 ? rating_sum / no_of_ratings : 0f;
                 r.setRating(rating_avg);
                 ratings.setText(rating_avg+"("+no_of_ratings+")");
                 shopname.setText(s_name);

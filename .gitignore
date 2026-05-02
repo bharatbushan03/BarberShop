@@ -1,7 +1,49 @@
+# IDE
 .idea/
-.qodo/
-.gradle/
-local.properties
+.vscode/
 *.iml
+*.ipr
+*.iws
+
+# Claude/Qodo
+.claude/
+.qodo/
+claude.md
+
+# Gradle
+.gradle/
 /build/
 **/build/
+
+# Local configuration
+local.properties
+
+# Android build artifacts
+*.apk
+*.aab
+*.aar
+*.ap_
+*.dex
+*.class
+bin/
+gen/
+out/
+release/
+captures/
+.externalNativeBuild/
+.cxx/
+
+# Firebase
+app/google-services.json
+
+# Keystores
+*.jks
+*.keystore
+*.p12
+
+# Logs
+*.log
+
+# OS
+.DS_Store
+Thumbs.db

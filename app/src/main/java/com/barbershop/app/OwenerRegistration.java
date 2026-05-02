@@ -41,6 +41,7 @@ import com.google.firebase.database.FirebaseDatabase;
 
 import java.util.Calendar;
 import java.util.Objects;
+import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
 public class OwenerRegistration extends AppCompatActivity {
@@ -355,7 +356,7 @@ public class OwenerRegistration extends AppCompatActivity {
             Log.d("piooo  fail", "");
             progressDialog.dismiss();
             Loading.setVisibility(View.GONE);
-            if (e.getMessage() != null && e.getMessage().toLowerCase().contains("provider is disabled")) {
+            if (e.getMessage() != null && e.getMessage().toLowerCase(Locale.ROOT).contains("provider is disabled")) {
                 progressDialog.setMessage("Phone verification unavailable. Creating account...");
                 progressDialog.show();
                 Loading.setVisibility(View.VISIBLE);

@@ -25,7 +25,7 @@ public class dbhelperforowner extends SQLiteOpenHelper {
     }
 
     public boolean insertData(String shopname,String password,String shopemail){
-        SQLiteDatabase mydb=this.getReadableDatabase();
+        SQLiteDatabase mydb=this.getWritableDatabase();
         ContentValues contentValues=new ContentValues();
         contentValues.put("shopname",shopname);
         contentValues.put("password",password);
@@ -36,18 +36,19 @@ public class dbhelperforowner extends SQLiteOpenHelper {
     }
     public Boolean checkshopname(String shopname){
         SQLiteDatabase mydb=this.getReadableDatabase();
-        Cursor cursor=mydb.rawQuery("Select * from ownerdb where shopname=?",new String[]{shopname});
-        return cursor.getCount() > 0;
+        try (Cursor cursor=mydb.rawQuery("Select * from ownerdb where shopname=?",new String[]{shopname})) {
+            return cursor.getCount() > 0;
+        }
     }
 
     public Boolean checkshopnamepassword(String shopname,String password){
         SQLiteDatabase mydb=this.getReadableDatabase();
-        Cursor cursor=mydb.rawQuery("Select * from ownerdb where shopname=? and password=?",new String[]{shopname,password});
-
-        if(cursor.getCount()>0){
-            return true;
-        }else {
-            return  false;
+        try (Cursor cursor=mydb.rawQuery("Select * from ownerdb where shopname=? and password=?",new String[]{shopname,password})) {
+            if(cursor.getCount()>0){
+                return true;
+            }else {
+                return  false;
+            }
         }
     }
 }

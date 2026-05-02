@@ -44,6 +44,11 @@ public class OwnerHomeActivity extends AppCompatActivity {
                     fragmentTransaction.replace(R.id.fm,new Ownerfragmentservices()).commit();
                 }
 
+                if (item.getItemId() == R.id.payments) {
+                    fragmentTransaction=getSupportFragmentManager().beginTransaction();
+                    fragmentTransaction.replace(R.id.fm,new Ownerfragmentpayment()).commit();
+                }
+
                 if (item.getItemId() == R.id.reviews) {
                     fragmentTransaction=getSupportFragmentManager().beginTransaction();
                     fragmentTransaction.replace(R.id.fm,new Ownerfragmentreviews()).commit();

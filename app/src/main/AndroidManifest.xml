@@ -1,12 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.barbershop.app">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.CALL_PHONE" />
+    <uses-feature
+        android:name="android.hardware.telephony"
+        android:required="false" />
 
     <application
         android:allowBackup="true"
@@ -16,7 +18,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.BarberConnect">
         <activity
-            android:name=".select_date_and_time_activity"
+            android:name=".ui.customer.booking.BookingActivity"
             android:exported="false" />
         <!--
              TODO: Before you run your application, you need a Google Maps API key.
@@ -42,10 +44,10 @@
             android:name=".OwnerHomeActivity"
             android:exported="false" />
         <activity
-            android:name=".Ownerlogin"
+            android:name=".ui.auth.ownerlogin.OwnerLoginActivity"
             android:exported="false" />
         <activity
-            android:name=".OwenerRegistration"
+            android:name=".ui.auth.register.OwnerRegistrationActivity"
             android:exported="false" />
         <activity
             android:name=".firstscreen"
@@ -57,10 +59,10 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".Registration"
+            android:name=".ui.auth.register.RegistrationActivity"
             android:exported="false" />
         <activity
-            android:name=".Login"
+            android:name=".ui.auth.login.LoginActivity"
             android:exported="false" />
         <activity
             android:name=".custHomeActivity"

@@ -1,71 +1,64 @@
 package com.barbershop.app.custom_adapters;
 
-        import android.content.Context;
-        import android.util.Log;
-        import android.view.LayoutInflater;
-        import android.view.View;
-        import android.view.ViewGroup;
-        import android.widget.CheckBox;
-        import android.widget.CompoundButton;
-        import android.widget.TextView;
+import android.content.Context;
+import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.CheckBox;
+import android.widget.TextView;
 
-        import androidx.annotation.NonNull;
-        import androidx.recyclerview.widget.RecyclerView;
+import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.RecyclerView;
 
-        import com.barbershop.app.R;
-        import com.barbershop.app.userdetails.services;
+import com.barbershop.app.R;
+import com.barbershop.app.userdetails.services;
 
-        import java.util.ArrayList;
+import java.util.ArrayList;
 
 public class serviceslist_of_selected_shop_adapter extends RecyclerView.Adapter<serviceslist_of_selected_shop_adapter.ViewHolder> {
 
-    private static ArrayList<services> list;
-    public ArrayList<String> a2=new ArrayList<>();
-    public static Context context;
-    public static int pos;
+    private final ArrayList<services> list;
+    public final ArrayList<String> a2 = new ArrayList<>();
+    private final LayoutInflater layoutInflater;
 
 
     public serviceslist_of_selected_shop_adapter(ArrayList<services> listt, Context context){
 
         list=listt;
-        this.context=context;
+        this.layoutInflater = LayoutInflater.from(context);
     }
 
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view;
-
-        view = LayoutInflater.from(context)
-                .inflate(R.layout.service_view_of_selectedshop, parent, false);
+        View view = layoutInflater.inflate(R.layout.service_view_of_selectedshop, parent, false);
 
         return new ViewHolder(view);
     }
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
+       services service = list.get(position);
+       String serviceName = service.getService_name();
+       holder.getservicename().setText(serviceName);
+       holder.getPrice_and_duration().setText(service.getService_price()+"$ and up to "+service.getService_duration()+"mins ");
+       holder.getExpandable_description().setText(service.getService_description());
 
-    pos=holder.getAdapterPosition();
-       holder.getservicename().setText(list.get(position).getService_name());
-       holder.getPrice_and_duration().setText(list.get(position).getService_price()+"$ and up to "+list.get(position).getService_duration()+"mins ");
-       holder.getExpandable_description().setText(list.get(position).getService_description());
-
-        holder.getService_checkbox().setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                if (holder.getService_checkbox().isChecked()){
-                    a2.add(holder.getservicename().getText().toString());
+        holder.getService_checkbox().setOnCheckedChangeListener(null);
+        holder.getService_checkbox().setChecked(a2.contains(serviceName));
+        holder.getService_checkbox().setOnCheckedChangeListener((compoundButton, isChecked) -> {
+            if (isChecked){
+                if (!a2.contains(serviceName)) {
+                    a2.add(serviceName);
                 }
-                else {
-                    a2.remove(holder.getservicename().getText().toString());
-                }
-
-                Log.d("CGHE","sizeee="+a2.size()+"added="+holder.getservicename().getText().toString());
+            }
+            else {
+                a2.remove(serviceName);
             }
 
+            Log.d("CGHE","sizeee="+a2.size()+"added="+serviceName);
         });
-
-
     }
 
     @Override

@@ -65,7 +65,7 @@ public class Ownerfragmentservices extends Fragment {
     RecyclerView recyclerView;
     FirebaseAuth mAuth;
     FirebaseDatabase database;
-   static LinearLayout blurr_background;
+   LinearLayout blurr_background;
 
    ProgressDialog progressDialog;
 
@@ -129,6 +129,14 @@ public class Ownerfragmentservices extends Fragment {
         // Inflate the layout for this fragment
         view=inflater.inflate(R.layout.fragment_ownerfragmentservices, container, false);
 
+        if (mAuth.getCurrentUser() == null) {
+            if (progressDialog != null && progressDialog.isShowing()) {
+                progressDialog.dismiss();
+            }
+            Toast.makeText(getContext(), "Please log in again.", Toast.LENGTH_SHORT).show();
+            return view;
+        }
+
         add_servicebtn= view.findViewById(R.id.add_servicebtn);
         recyclerView=view.findViewById(R.id.listof_services);
         blurr_background=view.findViewById(R.id.burr_background);
@@ -145,8 +153,8 @@ public class Ownerfragmentservices extends Fragment {
         addServicebtn=add_service.findViewById(R.id.add_servicebtn);
         add_serviceName=add_service.findViewById(R.id.add_service_name);
         add_servicePrice=add_service.findViewById(R.id.add_service_price);
-        add_serviceDescription=add_service.findViewById(R.id.add_service_duration);
-        add_serviceDuration=add_service.findViewById(R.id.add_service_description);
+        add_serviceDescription=add_service.findViewById(R.id.add_service_description);
+        add_serviceDuration=add_service.findViewById(R.id.add_service_duration);
 
 
 
@@ -205,6 +213,9 @@ public class Ownerfragmentservices extends Fragment {
         database.getReference("Shops").child(mAuth.getCurrentUser().getUid()).child("services").addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if (!isAdded()) {
+                    return;
+                }
                 list.clear();
                 for (DataSnapshot postSnapshot: snapshot.getChildren()) {
                     services service = postSnapshot.getValue(services.class);
@@ -215,7 +226,9 @@ public class Ownerfragmentservices extends Fragment {
                 services_c_adapter adapter=new services_c_adapter(list,getContext());
                 recyclerView.setAdapter(adapter);
                 recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-                progressDialog.dismiss();
+                if (progressDialog != null && progressDialog.isShowing()) {
+                    progressDialog.dismiss();
+                }
 
 
 //                Handler handler = new Handler();

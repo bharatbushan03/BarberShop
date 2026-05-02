@@ -11,11 +11,13 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import com.barbershop.app.custom_adapters.appointmentlist_ownerside_adapter;
 import com.barbershop.app.custom_adapters.appointmentlist_userside_adapter;
 import com.barbershop.app.userdetails.appointment_in_userside;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.FirebaseDatabase;
@@ -79,10 +81,18 @@ public class Ownerfragmentappointments extends Fragment {
 
         RecyclerView appointmentlist_shop_recyclerview=view.findViewById(R.id.shop_appointments_recyclerview);
 
+        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+        if (currentUser == null) {
+            Toast.makeText(getContext(), "Please log in again.", Toast.LENGTH_SHORT).show();
+            return view;
+        }
 
-        FirebaseDatabase.getInstance().getReference("Shops").child(FirebaseAuth.getInstance().getCurrentUser().getUid()).child("appointments").addValueEventListener(new ValueEventListener() {
+        FirebaseDatabase.getInstance().getReference("Shops").child(currentUser.getUid()).child("appointments").addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if (!isAdded()) {
+                    return;
+                }
                 String custname;
                 String apt_date="",slot="",amount="",status="pending";
                 Log.d("QQQ","1");

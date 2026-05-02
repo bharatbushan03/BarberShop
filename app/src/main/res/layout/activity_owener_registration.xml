@@ -61,7 +61,7 @@
         android:drawableLeft="@drawable/phoneicon"
         android:ems="10"
         android:hint="Shop-number"
-        android:inputType="number"
+        android:inputType="phone"
         android:minHeight="48dp"
         android:paddingLeft="15dp"
         android:textSize="20sp" />
@@ -108,7 +108,7 @@
             android:drawableLeft="@drawable/mailiconn"
             android:ems="10"
             android:hint="Shop E-mail"
-            android:inputType="textEmailSubject"
+            android:inputType="textEmailAddress"
             android:minHeight="48dp"
             android:paddingLeft="15dp"
             android:textSize="20sp" />

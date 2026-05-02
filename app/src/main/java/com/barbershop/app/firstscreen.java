@@ -19,6 +19,9 @@ import com.google.firebase.database.ValueEventListener;
 
 import java.util.Objects;
 
+import com.barbershop.app.ui.auth.login.LoginActivity;
+import com.barbershop.app.ui.auth.ownerlogin.OwnerLoginActivity;
+
 public class firstscreen extends AppCompatActivity {
     ImageButton customerbtn,ownerbtn;
     TextView t;
@@ -62,7 +65,7 @@ public class firstscreen extends AppCompatActivity {
                                 startActivity(i);
                             }
                             else {
-                                startActivity(new Intent(firstscreen.this, Login.class));
+                                startActivity(new Intent(firstscreen.this, LoginActivity.class));
                                 // Toast.makeText(Login.this,"User does not Exist",Toast.LENGTH_SHORT).show();
 
                             }
@@ -77,7 +80,7 @@ public class firstscreen extends AppCompatActivity {
 
                     //startActivity(new Intent(Login.this, custHomeActivity.class));
                 }else {
-                    startActivity(new Intent(firstscreen.this, Login.class));
+                    startActivity(new Intent(firstscreen.this, LoginActivity.class));
 
                 }
 
@@ -107,7 +110,7 @@ public class firstscreen extends AppCompatActivity {
 
                             }
                             else {
-                                startActivity(new Intent(firstscreen.this,Ownerlogin.class));
+                                startActivity(new Intent(firstscreen.this,OwnerLoginActivity.class));
                                 finish();
                                 //Toast.makeText(Ownerlogin.this,"Shop does not Exist",Toast.LENGTH_SHORT).show();
 
@@ -124,7 +127,7 @@ public class firstscreen extends AppCompatActivity {
 
                     //  startActivity(new Intent(Ownerlogin.this, OwnerHomeActivity.class));
                 }else{
-                    startActivity(new Intent(firstscreen.this,Ownerlogin.class));
+                    startActivity(new Intent(firstscreen.this,OwnerLoginActivity.class));
                 }
 
 

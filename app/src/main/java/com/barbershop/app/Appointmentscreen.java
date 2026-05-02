@@ -20,6 +20,7 @@ import com.barbershop.app.custom_adapters.RecyclerItemClickListener;
 import com.barbershop.app.custom_adapters.appointmentlist_userside_adapter;
 import com.barbershop.app.userdetails.appointment_in_userside;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -85,9 +86,18 @@ public class Appointmentscreen extends Fragment {
         View view=inflater.inflate(R.layout.fragment_appointmentscreen, container, false);
         RecyclerView rv=view.findViewById(R.id.appointment_taken_byuser_recyclerview);
 
-        FirebaseDatabase.getInstance().getReference("Users").child(FirebaseAuth.getInstance().getCurrentUser().getUid()).child("appointments").addValueEventListener(new ValueEventListener() {
+        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+        if (currentUser == null) {
+            Toast.makeText(getContext(), "Please log in again.", Toast.LENGTH_SHORT).show();
+            return view;
+        }
+
+        FirebaseDatabase.getInstance().getReference("Users").child(currentUser.getUid()).child("appointments").addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if (!isAdded()) {
+                    return;
+                }
                 String shopname;
                 String apt_date="",slot="",amount="",status="pending";
 

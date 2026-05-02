@@ -287,15 +287,22 @@ public class  reviews_of_selected_shop_userside extends Fragment {
     public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if(requestCode==123){
-            if(resultCode==RESULT_OK) {
-                Cursor returnCursor = getActivity().getContentResolver().query(data.getData(), null, null, null, null);
-                int nameIndex = returnCursor.getColumnIndex(OpenableColumns.DISPLAY_NAME);
-                int sizeIndex = returnCursor.getColumnIndex(OpenableColumns.SIZE);
-                returnCursor.moveToFirst();
-                Long Image_size = (returnCursor.getLong(sizeIndex) / 1000);
-                Log.d("TAGp", "Name:" + returnCursor.getString(nameIndex));
-                Log.d("TAGp", "Size: " + Image_size);
-                if(Image_size<=500){
+            if(resultCode==RESULT_OK && data != null && data.getData() != null && getActivity() != null) {
+                try (Cursor returnCursor = getActivity().getContentResolver().query(data.getData(), null, null, null, null)) {
+                    if (returnCursor == null) {
+                        Toast.makeText(getActivity(), "Unable to read selected image.", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                    int nameIndex = returnCursor.getColumnIndex(OpenableColumns.DISPLAY_NAME);
+                    int sizeIndex = returnCursor.getColumnIndex(OpenableColumns.SIZE);
+                    if (!returnCursor.moveToFirst()) {
+                        Toast.makeText(getActivity(), "Unable to read selected image.", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                    Long Image_size = (returnCursor.getLong(sizeIndex) / 1000);
+                    Log.d("TAGp", "Name:" + returnCursor.getString(nameIndex));
+                    Log.d("TAGp", "Size: " + Image_size);
+                    if(Image_size<=500){
                     ProgressDialog progressDialog=new ProgressDialog(getContext());
                         progressDialog.setTitle("Uploading Image...");
                         progressDialog.setMessage("Take a Sip..");
@@ -312,8 +319,9 @@ public class  reviews_of_selected_shop_userside extends Fragment {
                                     public void onSuccess(Uri uri) {
                                         String img_uri = String.valueOf(uri);
 
-                                        if(whichis_clicked==1)
-                                        Picasso.get().load(img_uri).into(img1);
+                                        if(whichis_clicked==1) {
+                                            Picasso.get().load(img_uri).into(img1);
+                                        }
                                         if(whichis_clicked==2)
                                             Picasso.get().load(img_uri).into(img2);
                                         if(whichis_clicked==3)
@@ -330,9 +338,10 @@ public class  reviews_of_selected_shop_userside extends Fragment {
                                 });
                             }
                         });
-                }
-                else {
-                    Toast.makeText(getContext(),"Image Size Must be Less than 500Kb!!",Toast.LENGTH_SHORT).show();
+                    }
+                    else {
+                        Toast.makeText(getContext(),"Image Size Must be Less than 500Kb!!",Toast.LENGTH_SHORT).show();
+                    }
                 }
             }
         }
